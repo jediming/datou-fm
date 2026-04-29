@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>大头会 · datou.fm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<link rel="icon" href="assets/mark.svg">
+<style>
+  :root {
+    --oxford: #002147;
+    --cream: #e8d9b8;
+    --bone: #f3ece0;
+    --brass: #b08856;
+    --ink: #002147;
+    --rule: rgba(0, 33, 71, 0.15);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bone);
+    color: var(--ink);
+    font-family: 'Noto Serif SC', 'Songti SC', 'STSong', serif;
+    font-size: 17px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+  a { color: var(--oxford); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; transition: color .2s; }
+  a:hover { color: var(--brass); }
+
+  /* ── header ───────────────────────────────────────── */
+  header.site {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 48px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 16px;
+    text-decoration: none;
+  }
+  .brand .hanzi {
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 600;
+    font-size: 24px;
+    letter-spacing: 0.18em;
+    color: var(--oxford);
+  }
+  .brand .divider {
+    display: inline-block;
+    width: 1px;
+    height: 18px;
+    background: var(--brass);
+    opacity: 0.5;
+    align-self: center;
+  }
+  .brand .latin {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 22px;
+    letter-spacing: 0.06em;
+    color: var(--brass);
+  }
+  nav.top { display: flex; gap: 28px; }
+  nav.top a {
+    text-decoration: none;
+    font-size: 15px;
+    color: var(--oxford);
+    letter-spacing: 0.05em;
+  }
+  nav.top a:hover { color: var(--brass); }
+
+  /* ── hero ────────────────────────────────────────── */
+  main {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 64px 48px 96px;
+  }
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: 80px;
+    align-items: start;
+  }
+  .hero-text h1 {
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 600;
+    font-size: 50px;
+    line-height: 1.45;
+    letter-spacing: 0.04em;
+    margin: 0 0 14px;
+    color: var(--oxford);
+  }
+  .hero-text h1 .lead {
+    display: block;
+    font-size: 38px;
+    font-weight: 500;
+    color: var(--oxford);
+    opacity: 0.85;
+  }
+  .hero-text .kicker {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--brass);
+    letter-spacing: 0.08em;
+    margin-bottom: 36px;
+  }
+  .hero-text p {
+    margin: 0 0 18px;
+    text-wrap: pretty;
+    max-width: 56ch;
+  }
+  .hero-text .pull {
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 500;
+    font-size: 19px;
+    line-height: 1.6;
+    border-left: 2px solid var(--brass);
+    padding-left: 22px;
+    margin: 28px 0;
+    color: var(--oxford);
+  }
+  .signoff {
+    margin-top: 36px;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 17px;
+    color: rgba(0, 33, 71, 0.7);
+    letter-spacing: 0.04em;
+  }
+
+  /* logo card (replaces portrait) */
+  .portrait {
+    position: sticky;
+    top: 48px;
+    max-width: 320px;
+    margin-left: auto;
+  }
+  .portrait .frame {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: var(--oxford);
+    overflow: hidden;
+    position: relative;
+  }
+  .portrait img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+  .portrait .caption {
+    margin-top: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 13px;
+    color: rgba(0, 33, 71, 0.6);
+    letter-spacing: 0.06em;
+  }
+  .portrait .caption .lhs { color: var(--oxford); font-style: normal; font-family: 'Noto Serif SC', serif; letter-spacing: 0.18em; font-size: 12px; }
+
+  /* ── sections list (读书 / 活动 / 视频 / 音频) ─────── */
+  .sections {
+    margin-top: 96px;
+    border-top: 1px solid var(--rule);
+  }
+  .sections-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-top: 24px;
+  }
+  .sections-head .title {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 16px;
+    color: var(--brass);
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+  }
+  .sections-head .meta {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: rgba(0, 33, 71, 0.55);
+    letter-spacing: 0.08em;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 80px minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: 32px;
+    padding: 32px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  /* episode cards (Acquired-style) */
+  .episode {
+    display: grid;
+    grid-template-columns: 168px minmax(0, 1fr) auto;
+    gap: 36px;
+    align-items: start;
+    padding: 32px 0;
+    border-bottom: 1px solid var(--rule);
+    text-decoration: none;
+    color: inherit;
+  }
+  .episode:first-of-type { border-top: 1px solid var(--rule); }
+  .episode .thumb {
+    width: 168px;
+    height: 168px;
+    overflow: hidden;
+    background: var(--oxford);
+    position: relative;
+  }
+  .episode .thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center 18%;
+    filter: saturate(0.78) contrast(1.02);
+    transition: transform .5s ease;
+  }
+  .episode:hover .thumb img { transform: scale(1.03); }
+  .episode .body h3 {
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 600;
+    font-size: 24px;
+    line-height: 1.35;
+    margin: 0 0 10px;
+    color: var(--oxford);
+    letter-spacing: 0.02em;
+  }
+  .episode .meta-line {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 13px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--brass);
+    margin-bottom: 12px;
+  }
+  .episode .meta-line .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--brass); }
+  .episode .desc {
+    font-size: 15px;
+    color: rgba(0, 33, 71, 0.78);
+    line-height: 1.7;
+    margin: 0;
+    max-width: 62ch;
+  }
+  .episode .play {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--rule);
+    background: rgba(255,255,255,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: end;
+    color: var(--oxford);
+    transition: all .2s ease;
+    flex-shrink: 0;
+  }
+  .episode:hover .play { background: var(--oxford); color: var(--bone); border-color: var(--oxford); }
+  .episode .play svg { width: 14px; height: 14px; }
+
+  @media (max-width: 720px) {
+    .episode { grid-template-columns: 96px minmax(0, 1fr); gap: 18px; }
+    .episode .thumb { width: 96px; height: 96px; }
+    .episode .play { display: none; }
+    .episode .body h3 { font-size: 18px; }
+  }
+  .row .num {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--brass);
+    letter-spacing: 0.08em;
+  }
+  .row .body h2 {
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 600;
+    font-size: 32px;
+    margin: 0 0 6px;
+    letter-spacing: 0.18em;
+    color: var(--oxford);
+  }
+  .row .body .desc {
+    font-size: 16px;
+    color: rgba(0, 33, 71, 0.78);
+    max-width: 56ch;
+    margin: 0;
+    line-height: 1.7;
+  }
+  .row .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--oxford);
+    border: 1px solid var(--oxford);
+    padding: 12px 22px;
+    transition: all .2s ease;
+    white-space: nowrap;
+  }
+  .row .cta:hover {
+    background: var(--oxford);
+    color: var(--bone);
+  }
+  .row .cta .arrow { font-family: 'Cormorant Garamond', serif; font-style: italic; }
+
+  /* ── footer ──────────────────────────────────────── */
+  footer.site {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 48px 48px 56px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: rgba(0, 33, 71, 0.55);
+    letter-spacing: 0.08em;
+    border-top: 1px solid var(--rule);
+    margin-top: 24px;
+  }
+  footer.site .right { display: flex; gap: 22px; }
+  footer.site a { color: rgba(0, 33, 71, 0.7); text-decoration: none; }
+  footer.site a:hover { color: var(--brass); }
+
+  /* ── responsive ──────────────────────────────────── */
+  @media (max-width: 880px) {
+    header.site { padding: 22px 24px 0; }
+    main { padding: 48px 24px 64px; }
+    .hero { grid-template-columns: 1fr; gap: 40px; }
+    .portrait { position: static; max-width: 420px; margin: 0 auto; width: 100%; }
+    .hero-text h1 { font-size: 36px; }
+    .row { grid-template-columns: 1fr; gap: 14px; }
+    .row .num { font-size: 14px; }
+    .row .cta { justify-self: start; }
+    nav.top { gap: 18px; }
+    nav.top a { font-size: 14px; }
+    footer.site { flex-direction: column; gap: 14px; padding: 32px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <a class="brand" href="/">
+    <span class="hanzi">大头会</span>
+    <span class="divider"></span>
+    <span class="latin">datou.fm</span>
+  </a>
+  <nav class="top">
+    <a href="mailto:hello@datou.fm">读书</a>
+    <a href="mailto:hello@datou.fm">活动</a>
+    <a href="mailto:hello@datou.fm">联系</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-text">
+      <h1><span class="lead">三个朋友，三座城市</span>一场关于 AI 时代的长谈</h1>
+      <div class="kicker">three friends · three cities · one long conversation</div>
+
+      <p>我们是三位牛津 MBA 同班同学，相识相交二十载。十多年前，我们的秉烛长谈从科技开始，慢慢延伸到商业、投资、管理，以及这个时代正在发生的深层变化。</p>
+
+      <p>播客<strong>《大头会》</strong>，就是我们聊了十多年的那场对话——现在打开了麦克风。</p>
+
+      <p>每期节目都是一场长谈式圆桌对话：三位主播，三座城市，围绕一家公司、一位人物，或一个关乎未来的关键问题展开。我们以牛津校友情谊为起点，聊 AI 时代的人与公司，以及他们正在经历和推动的变化。</p>
+
+      <p>我们三人合计有近六十年在投资、科技和亚洲市场一线打拼的经验。每期节目，我们各自从不同的视角做功课，但核心问题始终如一：</p>
+
+      <p class="pull">这家公司、这个人，或这个问题，究竟让我们看见一个怎样的未来？</p>
+
+      <p>我们希望，今天录下的一期节目，五年之后再听，依然值得。我们做得尽心，愿你听得尽兴。</p>
+
+      <p class="signoff">——这是我们的热忱所在，也是我们想在这个时代认真留下的一点印记。</p>
+    </div>
+
+    <aside class="portrait">
+      <div class="frame">
+        <img src="assets/logo.svg?v=fm2" alt="大头会·datou.fm 标志" />
+      </div>
+      <div class="caption">
+        <span class="lhs">大头会</span>
+        <span>est. 2026</span>
+      </div>
+    </aside>
+  </section>
+
+  <section class="sections" id="episodes">
+    <div class="sections-head">
+      <div class="title">单集内容</div>
+      <div class="meta"></div>
+    </div>
+
+    <a class="episode" href="/">
+      <div class="thumb">
+        <img src="assets/arthur-bi.jpg" alt="毕强 Arthur Bi" />
+      </div>
+      <div class="body">
+        <h3>大头会 001｜从古希腊到 AI 时代：与毕强聊咨询、教育与众神的家园</h3>
+        <div class="meta-line">
+          <span>EP. 001</span>
+          <span class="dot"></span>
+          <span>毕强 · Arthur Bi</span>
+          <span class="dot"></span>
+          <span>2026</span>
+        </div>
+        <p class="desc">《大头会》第一期，我们请来二十年前的牛津 MBA 同窗——毕强（Arthur Bi）。Arthur 曾任麦肯锡合伙人，长期深耕管理咨询与金融服务行业；近期出版《东方视角下的希腊文明史诗》一书，从东方视角重读古希腊文明。以这本新书为起点，我们聊写作、咨询、教育与下一代，聊 AI 正在如何改变知识生产和专业服务。第一场长谈，从牛津记忆出发，穿过希腊文明，走向一个正在到来的 AI 世界。</p>
+      </div>
+      <span class="play" aria-label="play">
+        <svg viewBox="0 0 12 14" fill="currentColor"><path d="M0 0 L12 7 L0 14 Z"/></svg>
+      </span>
+    </a>
+  </section>
+</main>
+
+<footer class="site">
+  <div>© 2026 大头会 · datou.fm</div>
+  <div class="right">
+    <a href="mailto:hello@datou.fm">联系我们</a>
+    <a href="/">YouTube</a>
+    <a href="mailto:hello@datou.fm">Blog</a>
+  </div>
+</footer>
+
+</body>
+</html>
