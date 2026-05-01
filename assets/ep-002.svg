@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 3000 3000" width="3000" height="3000">
+  <defs></defs>
+  <rect width="3000" height="3000" fill="#e8d9b8"></rect>
+  
+    <g transform="translate(722.2222222222222 602.7777777777777) scale(5.555555555555555)">
+      <path d="M 30 170 A 110 110 0 0 1 250 170" fill="none" stroke="#002147" stroke-width="1.4"></path>
+      <path d="M 70 170 A 70 70 0 0 1 210 170" fill="none" stroke="#002147" stroke-width="1.4"></path>
+      <path d="M 105 170 A 35 35 0 0 1 175 170" fill="none" stroke="#002147" stroke-width="1.4"></path>
+      <circle cx="140" cy="170" r="4" fill="#b08856"></circle>
+    </g>
+  
+  <text x="1500" y="2094.3333333333335" text-anchor="middle" font-family="&#39;Noto Serif SC&#39;, &#39;Songti SC&#39;, &#39;STSong&#39;, &#39;SimSun&#39;, serif" font-weight="500" font-size="355.55555555555554" letter-spacing="63.99999999999999" fill="#002147">大头会</text>
+  <rect x="1438.888888888889" y="2300" width="122.22222222222221" height="5.555555555555555" fill="#b08856"></rect>
+  <text x="1500" y="2480" text-anchor="middle" font-family="&#39;Cormorant Garamond&#39;, &#39;EB Garamond&#39;, &#39;Garamond&#39;, &#39;Times New Roman&#39;, serif" font-weight="500" font-size="160" letter-spacing="36" fill="#002147">datou.fm</text>
+</svg>
