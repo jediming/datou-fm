@@ -19,6 +19,10 @@
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
+  html {
+    -webkit-text-size-adjust: 100%; /* prevent iOS landscape auto-zoom */
+    text-size-adjust: 100%;
+  }
   body {
     background: var(--bone);
     color: var(--ink);
@@ -27,6 +31,7 @@
     line-height: 1.75;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden; /* belt-and-suspenders against horizontal scroll on phones */
   }
   a { color: var(--oxford); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; transition: color .2s; }
   a:hover { color: var(--brass); }
@@ -75,6 +80,7 @@
     font-size: 15px;
     color: var(--oxford);
     letter-spacing: 0.05em;
+    padding: 6px 0;             /* taller hit area for touch */
   }
   nav.top a:hover { color: var(--brass); }
 
@@ -93,7 +99,8 @@
   .hero-text h1 {
     font-family: 'Noto Serif SC', serif;
     font-weight: 600;
-    font-size: 50px;
+    /* min 28px on iPhone → 50px on desktop */
+    font-size: clamp(28px, 4.6vw, 50px);
     line-height: 1.45;
     letter-spacing: 0.04em;
     margin: 0 0 14px;
@@ -101,7 +108,8 @@
   }
   .hero-text h1 .lead {
     display: block;
-    font-size: 38px;
+    /* min 22px on iPhone → 38px on desktop */
+    font-size: clamp(22px, 3.5vw, 38px);
     font-weight: 500;
     color: var(--oxford);
     opacity: 0.85;
@@ -109,7 +117,7 @@
   .hero-text .kicker {
     font-family: 'Cormorant Garamond', serif;
     font-style: italic;
-    font-size: 18px;
+    font-size: clamp(15px, 1.5vw, 18px);
     color: var(--brass);
     letter-spacing: 0.08em;
     margin-bottom: 36px;
@@ -122,7 +130,7 @@
   .hero-text .pull {
     font-family: 'Noto Serif SC', serif;
     font-weight: 500;
-    font-size: 19px;
+    font-size: clamp(17px, 1.6vw, 19px);
     line-height: 1.6;
     border-left: 2px solid var(--brass);
     padding-left: 22px;
@@ -217,6 +225,29 @@
     text-decoration: none;
     color: inherit;
   }
+  .episode .thumb.placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--oxford);
+    color: var(--cream);
+    position: relative;
+  }
+  .episode .thumb.placeholder .ep-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 56px;
+    letter-spacing: 0.04em;
+    color: var(--cream);
+  }
+  .episode .thumb.placeholder::after {
+    content: "";
+    position: absolute;
+    inset: 14px;
+    border: 1px solid rgba(232, 217, 184, 0.25);
+    pointer-events: none;
+  }
   .episode:first-of-type { border-top: 1px solid var(--rule); }
   .episode .thumb {
     width: 168px;
@@ -229,15 +260,14 @@
     width: 100%;
     height: 100%;
     object-fit: cover;
-    object-position: center 18%;
-    filter: saturate(0.78) contrast(1.02);
+    object-position: center;
     transition: transform .5s ease;
   }
   .episode:hover .thumb img { transform: scale(1.03); }
   .episode .body h3 {
     font-family: 'Noto Serif SC', serif;
     font-weight: 600;
-    font-size: 24px;
+    font-size: clamp(18px, 1.9vw, 24px);
     line-height: 1.35;
     margin: 0 0 10px;
     color: var(--oxford);
@@ -246,7 +276,9 @@
   .episode .meta-line {
     display: flex;
     align-items: center;
+    flex-wrap: wrap;
     gap: 10px;
+    row-gap: 4px;
     font-family: 'Cormorant Garamond', serif;
     font-style: italic;
     font-size: 13px;
@@ -261,7 +293,9 @@
     color: rgba(0, 33, 71, 0.78);
     line-height: 1.7;
     margin: 0;
-    max-width: 62ch;
+    max-width: none;
+    text-align: justify;
+    text-justify: inter-ideograph;
   }
   .episode .play {
     width: 44px;
@@ -281,10 +315,23 @@
   .episode .play svg { width: 14px; height: 14px; }
 
   @media (max-width: 720px) {
-    .episode { grid-template-columns: 96px minmax(0, 1fr); gap: 18px; }
+    .episode { grid-template-columns: 96px minmax(0, 1fr); gap: 18px; padding: 24px 0; }
     .episode .thumb { width: 96px; height: 96px; }
     .episode .play { display: none; }
-    .episode .body h3 { font-size: 18px; }
+  }
+  @media (max-width: 480px) {
+    .sections { margin-top: 56px; }
+    .sections-head { padding-top: 18px; margin-bottom: 8px; }
+    .sections-head .title { font-size: 22px; }
+    .episode { gap: 14px; padding: 20px 0; }
+    .episode .thumb { width: 84px; height: 84px; }
+    .episode .body h3 { margin-bottom: 8px; }
+    .episode .meta-line { font-size: 11px; gap: 8px; letter-spacing: 0.18em; margin-bottom: 10px; }
+    .episode .desc {
+      font-size: 14px;
+      line-height: 1.75;
+      text-align: left;            /* relax justify on narrow column */
+    }
   }
   .row .num {
     font-family: 'Cormorant Garamond', serif;
@@ -355,13 +402,26 @@
     main { padding: 48px 24px 64px; }
     .hero { grid-template-columns: 1fr; gap: 40px; }
     .portrait { position: static; max-width: 420px; margin: 0 auto; width: 100%; }
-    .hero-text h1 { font-size: 36px; }
     .row { grid-template-columns: 1fr; gap: 14px; }
     .row .num { font-size: 14px; }
     .row .cta { justify-self: start; }
     nav.top { gap: 18px; }
     nav.top a { font-size: 14px; }
     footer.site { flex-direction: column; gap: 14px; padding: 32px 24px; }
+  }
+  @media (max-width: 480px) {
+    header.site { padding: 18px 18px 0; }
+    main { padding: 36px 18px 56px; }
+    footer.site { padding: 28px 18px 36px; gap: 12px; }
+    footer.site .right { flex-wrap: wrap; gap: 16px; row-gap: 8px; }
+
+    /* hero: portrait above text, smaller, tighter gap */
+    .hero { gap: 28px; }
+    .hero-text { order: 2; }
+    .portrait { order: 1; max-width: 280px; }
+    .portrait .caption { margin-top: 10px; }
+    .hero-text .kicker { margin-bottom: 22px; }
+    .signoff { margin-top: 24px; }
   }
 </style>
 </head>
@@ -420,18 +480,78 @@
 
     <a class="episode" href="/">
       <div class="thumb">
-        <img src="assets/arthur-bi.jpg" alt="毕强 Arthur Bi" />
+        <img src="assets/ep-004.svg" alt="大头会 004" />
       </div>
       <div class="body">
-        <h3>大头会 001｜从古希腊到 AI 时代：与毕强聊咨询、教育与众神的家园</h3>
+        <h3>004｜从古希腊到 AI 时代：与 Arthur 聊历史、人工智能与众神的家园</h3>
         <div class="meta-line">
-          <span>EP. 001</span>
+          <span>EP. 004</span>
           <span class="dot"></span>
-          <span>毕强 · Arthur Bi</span>
+          <span>Arthur Bi</span>
           <span class="dot"></span>
           <span>2026</span>
         </div>
-        <p class="desc">《大头会》第一期，我们请来二十年前的牛津 MBA 同窗——毕强（Arthur Bi）。我们聊写作、咨询、教育与下一代，聊 AI 正在如何改变知识生产和专业服务。第一场长谈，从牛津记忆出发，穿过希腊文明，走向一个正在到来的 AI 世界。</p>
+        <p class="desc">这一期，我们请来二十多年前的牛津同窗 Arthur。他曾任麦肯锡合伙人，深耕管理咨询行业；与此同时，Arthur 也是一位历史学者，长期关注希腊文明，近期出版新著《东方视角下的希腊文明史诗》，“既不学术深奥，也不演绎戏说”，为中国读者打开了理解古希腊文明的一扇门。以此书为起点，我们聊历史，聊咨询，也聊 AI 正在如何改变知识生产与专业服务。第一位嘉宾，第一场长谈，从牛津记忆出发，穿过希腊文明，走向一个正在到来的 AI 世界。</p>
+      </div>
+      <span class="play" aria-label="play">
+        <svg viewBox="0 0 12 14" fill="currentColor"><path d="M0 0 L12 7 L0 14 Z"/></svg>
+      </span>
+    </a>
+
+    <a class="episode" href="/">
+      <div class="thumb">
+        <img src="assets/ep-003.svg" alt="大头会 003" />
+      </div>
+      <div class="body">
+        <h3>003｜Token 时代：聊聊 AI 的成本、能力与边界</h3>
+        <div class="meta-line">
+          <span>EP. 003</span>
+          <span class="dot"></span>
+          <span>AI Economics</span>
+          <span class="dot"></span>
+          <span>2026</span>
+        </div>
+        <p class="desc">本期，我们讲讲 Token（词元）。最初，我们关心的是模型能回答什么；进入 Agent 时代后，每一次任务都在消耗成千上万的 Token——这个时代的成本、能力与边界，都开始用 Token 来计量。问题变成了：每一次智能到底消耗多少成本，又创造多少价值？我们聊中国万亿级的 Token 调用，聊 Agentic coding 的真实账单，也聊 AI 的能力边界：当机器越来越擅长可计算的事情，不可计算的部分还剩下什么？这个问题，AI 自己可能答不上来。</p>
+      </div>
+      <span class="play" aria-label="play">
+        <svg viewBox="0 0 12 14" fill="currentColor"><path d="M0 0 L12 7 L0 14 Z"/></svg>
+      </span>
+    </a>
+
+    <a class="episode" href="/">
+      <div class="thumb">
+        <img src="assets/ep-002.svg" alt="大头会 002" />
+      </div>
+      <div class="body">
+        <h3>002｜从濒临破产到机器人的黎明：聊聊特斯拉</h3>
+        <div class="meta-line">
+          <span>EP. 002</span>
+          <span class="dot"></span>
+          <span>Tesla</span>
+          <span class="dot"></span>
+          <span>2026</span>
+        </div>
+        <p class="desc">特斯拉这家公司最值得记住的时刻，或许不是股价新高，也不是市值神话，而是 2008 年那个濒临破产的冬天—马斯克把自己最后的两千多万美金压上，在金融危机最深处，把公司从悬崖边拉了回来。我们聊那一年究竟发生了什么，聊为什么偏偏是这样一个偏执的人，能把电动车这件难事干成，也聊从汽车、自动驾驶到人形机器人，特斯拉究竟在通往哪里。一个时代还没有名字，但它已经在路上。</p>
+      </div>
+      <span class="play" aria-label="play">
+        <svg viewBox="0 0 12 14" fill="currentColor"><path d="M0 0 L12 7 L0 14 Z"/></svg>
+      </span>
+    </a>
+
+    <a class="episode" href="/">
+      <div class="thumb">
+        <img src="assets/ep-001.svg" alt="大头会 001" />
+      </div>
+      <div class="body">
+        <h3>001｜一场关于 AGI 的十年赌局，聊聊 OpenAI</h3>
+        <div class="meta-line">
+          <span>EP. 001</span>
+          <span class="dot"></span>
+          <span>OpenAI</span>
+          <span class="dot"></span>
+          <span>2026</span>
+        </div>
+        <p class="desc">《大头会》开篇，我们聊 OpenAI。在它 2015 年成立时，没有 Transformer，更没有 ChatGPT，但为什么是这样一家连产品方向都不清晰的创业公司，开启了今天的 AI 时代？我们坐下来，反复回到同一个词：赌性坚强。从这里出发，我们聊 Sam Altman 这个人，聊他与马斯克的渐行渐远，聊从 OpenAI 走出去的那群人，也聊 AGI 离我们究竟还有多远。十年过去，OpenAI 已经改变了世界；但这场 AGI 赌局，远未到揭晓答案的时刻。</p>
       </div>
       <span class="play" aria-label="play">
         <svg viewBox="0 0 12 14" fill="currentColor"><path d="M0 0 L12 7 L0 14 Z"/></svg>
