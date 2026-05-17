@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>大头会 · datou.fm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<link rel="icon" href="assets/mark.svg">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<style>
+  :root {
+    --oxford: #002147;
+    --cream: #e8d9b8;
+    --bone: #f3ece0;
+    --brass: #b08856;
+    --ink: #002147;
+    --rule: rgba(0, 33, 71, 0.15);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  html {
+    -webkit-text-size-adjust: 100%; /* prevent iOS landscape auto-zoom */
+    text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+  body {
+    background: var(--bone);
+    color: var(--ink);
+    font-family: 'Noto Serif SC', 'Songti SC', 'STSong', serif;
+    font-size: 17px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden; /* belt-and-suspenders against horizontal scroll on phones */
+  }
+  a { color: var(--oxford); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; transition: color .2s; }
+  a:hover { color: var(--brass); }
+
+  /* ── header ───────────────────────────────────────── */
+  header.site {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 48px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    row-gap: 12px;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 16px;
+    text-decoration: none;
+  }
+  .brand .hanzi {
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 600;
+    font-size: 24px;
+    letter-spacing: 0.18em;
+    color: var(--oxford);
+  }
+  .brand .divider {
+    display: inline-block;
+    width: 1px;
+    height: 18px;
+    background: var(--brass);
+    opacity: 0.5;
+    align-self: center;
+  }
+  .brand .latin {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 22px;
+    letter-spacing: 0.06em;
+    color: var(--brass);
+  }
+  nav.top { display: flex; gap: 28px; }
+  nav.top a {
+    text-decoration: none;
+    font-size: 15px;
+    color: var(--oxford);
+    letter-spacing: 0.05em;
+    padding: 10px 0;             /* taller hit area for touch */
+    -webkit-tap-highlight-color: transparent;
+    transition: color .15s ease;
+  }
+  nav.top a:hover { color: var(--brass); }
+  nav.top a:active { color: var(--brass); }
+
+  /* ── hero ────────────────────────────────────────── */
+  main {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 64px 48px 96px;
+  }
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: 80px;
+    align-items: start;
+  }
+  .hero-text h1 {
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 600;
+    /* min 28px on iPhone → 50px on desktop */
+    font-size: clamp(28px, 4.6vw, 50px);
+    line-height: 1.45;
+    letter-spacing: 0.04em;
+    margin: 0 0 14px;
+    color: var(--oxford);
+  }
+  .hero-text h1 .lead {
+    display: block;
+    /* min 22px on iPhone → 38px on desktop */
+    font-size: clamp(22px, 3.5vw, 38px);
+    font-weight: 500;
+    color: var(--oxford);
+    opacity: 0.85;
+  }
+  .hero-text .kicker {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: clamp(15px, 1.5vw, 18px);
+    color: var(--brass);
+    letter-spacing: 0.08em;
+    margin-bottom: 36px;
+  }
+  .hero-text p {
+    margin: 0 0 18px;
+    text-wrap: pretty;
+    max-width: 56ch;
+    font-size: clamp(15px, 1.2vw, 16px);
+    line-height: 1.75;
+  }
+  .hero-text p strong {
+    font-weight: 600;
+    color: var(--oxford);
+    letter-spacing: 0.02em;
+  }
+  .hero-text .pull {
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 500;
+    font-size: clamp(17px, 1.6vw, 19px);
+    line-height: 1.6;
+    border-left: 2px solid var(--brass);
+    padding-left: 22px;
+    margin: 28px 0;
+    color: var(--oxford);
+  }
+  .signoff {
+    margin-top: 36px;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 17px;
+    color: rgba(0, 33, 71, 0.7);
+    letter-spacing: 0.04em;
+  }
+
+  /* logo card (replaces portrait) */
+  .portrait {
+    position: sticky;
+    top: 48px;
+    max-width: 320px;
+    margin-left: auto;
+  }
+  .portrait .frame {
+    width: 100%;
+    aspect-ratio: 1 / 1;
+    background: var(--oxford);
+    overflow: hidden;
+    position: relative;
+  }
+  .portrait img {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+  }
+  .portrait .caption {
+    margin-top: 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 13px;
+    color: rgba(0, 33, 71, 0.6);
+    letter-spacing: 0.06em;
+  }
+  .portrait .caption .lhs { color: var(--oxford); font-style: normal; font-family: 'Noto Serif SC', serif; letter-spacing: 0.18em; font-size: 12px; }
+
+  /* ── sections list (读书 / 活动 / 视频 / 音频) ─────── */
+  .sections {
+    margin-top: 96px;
+    border-top: 1px solid var(--rule);
+  }
+  .sections-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding-top: 24px;
+  }
+  .sections-head .title {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 16px;
+    color: var(--brass);
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+  }
+  .sections-head .meta {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: rgba(0, 33, 71, 0.55);
+    letter-spacing: 0.08em;
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 80px minmax(0, 1fr) auto;
+    align-items: baseline;
+    gap: 32px;
+    padding: 32px 0;
+    border-bottom: 1px solid var(--rule);
+  }
+
+  /* episode cards (Acquired-style) */
+  .episode {
+    display: grid;
+    grid-template-columns: 168px minmax(0, 1fr) auto;    gap: 36px;
+    align-items: start;
+    padding: 32px 0;
+    border-bottom: 1px solid var(--rule);
+    text-decoration: none;
+    color: inherit;
+  }
+  .episode .thumb.placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--oxford);
+    color: var(--cream);
+    position: relative;
+  }
+  .episode .thumb.placeholder .ep-num {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 56px;
+    letter-spacing: 0.04em;
+    color: var(--cream);
+  }
+  .episode .thumb.placeholder::after {
+    content: "";
+    position: absolute;
+    inset: 14px;
+    border: 1px solid rgba(232, 217, 184, 0.25);
+    pointer-events: none;
+  }
+  .episode:first-of-type { border-top: 1px solid var(--rule); }
+  .episode .thumb {
+    width: 168px;
+    height: 168px;
+    overflow: hidden;
+    background: var(--oxford);
+    position: relative;
+  }
+  .episode .thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    transition: transform .5s ease;
+  }
+  .episode:hover .thumb img { transform: scale(1.03); }
+  @media (hover: none) {
+    .episode:hover .thumb img { transform: none; }
+    .episode:active { background-color: rgba(176, 136, 86, 0.04); }
+    .episode { -webkit-tap-highlight-color: transparent; transition: background-color .2s ease; }
+  }
+  .episode .body h3 {
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 600;
+    font-size: clamp(18px, 1.9vw, 24px);
+    line-height: 1.35;
+    margin: 0 0 10px;
+    color: var(--oxford);
+    letter-spacing: 0.02em;
+  }
+  .episode .meta-line {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 10px;
+    row-gap: 4px;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 13px;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--brass);
+    margin-bottom: 12px;
+  }
+  .episode .meta-line .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--brass); }
+
+  /* docked mini player (Acquired-style) */
+  .audio-dock {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    width: min(420px, calc(100vw - 32px));
+    background: var(--bone);
+    border: 1px solid var(--rule);
+    border-radius: 8px;
+    box-shadow: 0 18px 48px -16px rgba(0, 33, 71, 0.28), 0 4px 12px -4px rgba(0, 33, 71, 0.14);
+    padding: 16px 16px calc(12px + env(safe-area-inset-bottom));
+    z-index: 9999;
+    transform: translateY(calc(100% + 32px));
+    opacity: 0;
+    pointer-events: none;
+    transition: transform .28s ease, opacity .2s ease;
+  }
+  .audio-dock.is-open {
+    transform: translateY(0);
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .audio-dock__head {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+    margin-bottom: 10px;
+  }
+  .audio-dock__title {
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 600;
+    font-size: 14px;
+    color: var(--oxford);
+    letter-spacing: 0.04em;
+    margin: 0;
+    line-height: 1.4;
+  }
+  .audio-dock__close {
+    flex: 0 0 auto;
+    width: 36px; height: 36px;
+    border: 1px solid var(--rule);
+    background: transparent;
+    border-radius: 50%;
+    color: var(--oxford);
+    cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; line-height: 1;
+    font-family: 'Cormorant Garamond', serif;
+    transition: background .2s, color .2s;
+    padding: 0;
+  }
+  .audio-dock__close:hover { background: var(--oxford); color: var(--bone); }
+  .audio-dock iframe { display: block; width: 100%; border: 0; }
+  /* push page content up when dock is open so footer/last episode aren't hidden */
+  body.audio-dock-open { padding-bottom: 240px; }
+  @media (max-width: 480px) {
+    .audio-dock {
+      right: 0; left: 0; bottom: 0;
+      width: auto;
+      padding: 14px 14px calc(10px + env(safe-area-inset-bottom));
+      border-radius: 12px 12px 0 0;
+      border-left: 0; border-right: 0; border-bottom: 0;
+    }
+    .audio-dock__title { font-size: 13px; }
+    body.audio-dock-open { padding-bottom: 260px; }
+  }
+  .episode .desc {
+    font-size: 15px;
+    color: rgba(0, 33, 71, 0.78);
+    line-height: 1.7;
+    margin: 0;
+    max-width: none;
+    text-align: justify;
+    text-justify: inter-ideograph;
+  }
+  .episode .play {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--rule);
+    background: rgba(255,255,255,0.4);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    align-self: end;
+    color: var(--oxford);
+    transition: all .2s ease;
+    flex-shrink: 0;
+  }
+  .episode:hover .play { background: var(--oxford); color: var(--bone); border-color: var(--oxford); }
+  .episode .play svg { width: 14px; height: 14px; }
+
+  @media (max-width: 720px) {
+    .episode { grid-template-columns: 96px minmax(0, 1fr) auto; gap: 18px; padding: 24px 0; }
+    .episode .thumb { width: 96px; height: 96px; }
+    .episode .play { width: 44px; height: 44px; align-self: center; grid-column: 3; grid-row: 1 / span 2; }
+    .episode .body { grid-column: 2; }
+    .episode:hover .play { background: rgba(255,255,255,0.4); color: var(--oxford); border-color: var(--rule); }
+    .episode .play:active { background: var(--oxford); color: var(--bone); border-color: var(--oxford); }
+  }
+  @media (max-width: 480px) {
+    .sections { margin-top: 56px; }
+    .sections-head { padding-top: 18px; margin-bottom: 8px; }
+    .sections-head .title { font-size: 22px; }
+    .episode { grid-template-columns: 84px minmax(0, 1fr) 44px; gap: 12px; padding: 20px 0; }
+    .episode .thumb { width: 84px; height: 84px; }
+    .episode .body h3 { margin-bottom: 8px; font-size: 16px; line-height: 1.4; }
+    .episode .meta-line { font-size: 11px; gap: 8px; letter-spacing: 0.18em; margin-bottom: 10px; }
+    .episode .desc {
+      font-size: 14px;
+      line-height: 1.75;
+      text-align: left;            /* relax justify on narrow column */
+    }
+  }
+  .row .num {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 18px;
+    color: var(--brass);
+    letter-spacing: 0.08em;
+  }
+  .row .body h2 {
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 600;
+    font-size: 32px;
+    margin: 0 0 6px;
+    letter-spacing: 0.18em;
+    color: var(--oxford);
+  }
+  .row .body .desc {
+    font-size: 16px;
+    color: rgba(0, 33, 71, 0.78);
+    max-width: 56ch;
+    margin: 0;
+    line-height: 1.7;
+  }
+  .row .cta {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    text-decoration: none;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 16px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    color: var(--oxford);
+    border: 1px solid var(--oxford);
+    padding: 12px 22px;
+    transition: all .2s ease;
+    white-space: nowrap;
+  }
+  .row .cta:hover {
+    background: var(--oxford);
+    color: var(--bone);
+  }
+  .row .cta .arrow { font-family: 'Cormorant Garamond', serif; font-style: italic; }
+
+  /* ── footer ──────────────────────────────────────── */
+  footer.site {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 48px 48px 56px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: rgba(0, 33, 71, 0.55);
+    letter-spacing: 0.08em;
+    border-top: 1px solid var(--rule);
+    margin-top: 24px;
+  }
+  footer.site .right { display: flex; gap: 22px; }
+  footer.site a { color: rgba(0, 33, 71, 0.7); text-decoration: none; }
+  footer.site a:hover { color: var(--brass); }
+
+  /* ── responsive ──────────────────────────────────── */
+  @media (max-width: 880px) {
+    header.site { padding: 22px 24px 0; }
+    main { padding: 48px 24px 64px; }
+    .hero { grid-template-columns: 1fr; gap: 40px; }
+    .portrait { position: static; max-width: 420px; margin: 0 auto; width: 100%; }
+    .row { grid-template-columns: 1fr; gap: 14px; }
+    .row .num { font-size: 14px; }
+    .row .cta { justify-self: start; }
+    nav.top { gap: 18px; }
+    nav.top a { font-size: 14px; }
+    footer.site { flex-direction: column; gap: 14px; padding: 32px 24px; }
+  }
+  @media (max-width: 480px) {
+    header.site { padding: 18px 18px 0; gap: 8px; }
+    main { padding: 36px 18px 56px; }
+    footer.site { padding: 28px 18px 36px; gap: 12px; }
+    footer.site .right { flex-wrap: wrap; gap: 16px; row-gap: 8px; }
+
+    /* tighter brand on iPhone, divider hides if it wraps */
+    .brand { gap: 12px; }
+    .brand .hanzi { font-size: 22px; letter-spacing: 0.16em; }
+    .brand .latin { font-size: 18px; }
+    .brand .divider { height: 16px; }
+
+    /* nav: full row below brand, evenly spaced, larger tap targets */
+    nav.top { width: 100%; justify-content: flex-start; gap: 22px; }
+    nav.top a { font-size: 14px; padding: 12px 0; letter-spacing: 0.06em; }
+
+    /* hero: portrait above text, smaller, tighter gap */
+    .hero { gap: 28px; }
+    .hero-text { order: 2; }
+    .hero-text h1 { line-height: 1.4; margin-bottom: 12px; }
+    .hero-text p { font-size: 15px; line-height: 1.8; margin-bottom: 16px; }
+    .hero-text .pull { padding-left: 16px; margin: 22px 0; font-size: 16px; line-height: 1.65; }
+    .portrait { order: 1; max-width: 280px; }
+    .portrait .caption { margin-top: 10px; }
+    .hero-text .kicker { margin-bottom: 22px; }
+    .signoff { margin-top: 24px; font-size: 15px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <a class="brand" href="/">
+    <span class="hanzi">大头会</span>
+    <span class="divider"></span>
+    <span class="latin">datou.fm</span>
+  </a>
+  <nav class="top">
+    <a href="book.html">读书</a>
+    <a href="mailto:hello@datou.fm">活动</a>
+    <a href="mailto:hello@datou.fm">联系</a>
+  </nav>
+</header>
+
+<main>
+  <section class="hero">
+    <div class="hero-text">
+      <h1><span class="lead">三个朋友，三座城市</span>一场关于 AI 时代的长谈</h1>
+      <div class="kicker">three friends · three cities · one long conversation</div>
+
+      <p>我们是三位牛津 MBA 同班同学，相识相交二十载。十多年前，我们的秉烛长谈从科技开始，慢慢延伸到商业、投资、管理，以及这个时代正在发生的深层变化。</p>
+
+      <p>播客<strong>《大头会》</strong>，就是我们聊了十多年的那场对话——现在打开了麦克风。</p>
+
+      <p>每期节目都是一场长谈式圆桌对话：三位主播，三座城市，围绕一家公司、一位人物，或一个关乎未来的关键问题展开。我们以牛津校友情谊为起点，聊 AI 时代的人与公司，以及他们正在经历和推动的变化。</p>
+
+      <p>我们三人合计有近六十年在投资、科技和亚洲市场一线打拼的经验。每期节目，我们各自从不同的视角做功课，但核心问题始终如一：</p>
+
+      <p class="pull">这家公司、这个人，或这个问题，究竟让我们看见一个怎样的未来？</p>
+
+      <p>我们希望，今天录下的一期节目，五年之后再听，依然值得。我们做得尽心，愿你听得尽兴。</p>
+
+      <p class="signoff">——这是我们的热忱所在，也是我们想在这个时代认真留下的一点印记。</p>
+    </div>
+
+    <aside class="portrait">
+      <div class="frame">
+        <img src="assets/logo.svg?v=fm2" alt="大头会·datou.fm 标志" />
+      </div>
+      <div class="caption">
+        <span class="lhs">大头会</span>
+        <span>est. 2026</span>
+      </div>
+    </aside>
+  </section>
+
+  <section class="sections" id="episodes">
+    <div class="sections-head">
+      <div class="title">单集内容</div>
+      <div class="meta"></div>
+    </div>
+
+    <a class="episode" href="/">
+      <div class="thumb">
+        <img src="assets/ep-cover.svg" alt="大头会 004" />
+      </div>
+      <div class="body">
+        <h3>004｜从古希腊到 AI 时代：与 Arthur 聊历史、人工智能与众神的家园</h3>
+        <div class="meta-line">
+          <span>EP. 004</span>
+          <span class="dot"></span>
+          <span>Arthur Bi</span>
+          <span class="dot"></span>
+          <span>2026</span>
+        </div>
+        <p class="desc">这一期，我们请来二十多年前的牛津同窗 Arthur。他曾任麦肯锡合伙人，深耕管理咨询行业；与此同时，Arthur 也是一位历史学者，长期关注希腊文明，近期出版新著《东方视角下的希腊文明史诗》，“既不学术深奥，也不演绎戏说”，为中国读者打开了理解古希腊文明的一扇门。以此书为起点，我们聊历史，聊咨询，也聊 AI 正在如何改变知识生产与专业服务。第一位嘉宾，第一场长谈，从牛津记忆出发，穿过希腊文明，走向一个正在到来的 AI 世界。</p>
+      </div>
+      <span class="play" aria-label="play">
+        <svg viewBox="0 0 12 14" fill="currentColor"><path d="M0 0 L12 7 L0 14 Z"/></svg>
+      </span>
+    </a>
+
+    <article class="episode is-live" data-audio="https://share.transistor.fm/e/119f6080" data-title="大头会 003 · AI Economics">
+      <div class="thumb">
+        <img src="assets/ep-cover.svg" alt="大头会 003" />
+      </div>
+      <div class="body">
+        <h3>003｜Token 时代：聊聊 AI 的成本、能力与边界</h3>
+        <div class="meta-line">
+          <span>EP. 003</span>
+          <span class="dot"></span>
+          <span>AI Economics</span>
+          <span class="dot"></span>
+          <span>2026</span>
+        </div>
+        <p class="desc">本期，我们讲讲 Token（词元）。最初，我们关心的是模型能回答什么；进入 Agent 时代后，每一次任务都在消耗成千上万的 Token——这个时代的成本、能力与边界，都开始用 Token 来计量。问题变成了：每一次智能到底消耗多少成本，又创造多少价值？我们聊中国万亿级的 Token 调用，聊 Agentic coding 的真实账单，也聊 AI 的能力边界：当机器越来越擅长可计算的事情，不可计算的部分还剩下什么？这个问题，AI 自己可能答不上来。</p>
+      </div>
+      <button type="button" class="play" aria-label="播放 EP. 003">
+        <svg viewBox="0 0 12 14" fill="currentColor"><path d="M0 0 L12 7 L0 14 Z"/></svg>
+      </button>
+    </article>
+
+    <article class="episode is-live" data-audio="https://share.transistor.fm/e/1879b4ab" data-title="大头会 002 · Tesla">
+      <div class="thumb">
+        <img src="assets/ep-cover.svg" alt="大头会 002" />
+      </div>
+      <div class="body">
+        <h3>002｜从濒临破产到机器人的黎明：聊聊特斯拉</h3>
+        <div class="meta-line">
+          <span>EP. 002</span>
+          <span class="dot"></span>
+          <span>Tesla</span>
+          <span class="dot"></span>
+          <span>2026</span>
+        </div>
+        <p class="desc">特斯拉这家公司最值得记住的时刻，或许不是股价新高，也不是市值神话，而是 2008 年那个濒临破产的冬天—马斯克把自己最后的两千多万美金压上，在金融危机最深处，把公司从悬崖边拉了回来。我们聊那一年究竟发生了什么，聊为什么偏偏是这样一个偏执的人，能把电动车这件难事干成，也聊从汽车、自动驾驶到人形机器人，特斯拉究竟在通往哪里。一个时代还没有名字，但它已经在路上。</p>
+      </div>
+      <button type="button" class="play" aria-label="播放 EP. 002">
+        <svg viewBox="0 0 12 14" fill="currentColor"><path d="M0 0 L12 7 L0 14 Z"/></svg>
+      </button>
+    </article>
+
+    <article class="episode is-live" data-audio="https://share.transistor.fm/e/8a94e104" data-title="大头会 001 · OpenAI">
+      <div class="thumb">
+        <img src="assets/ep-cover.svg" alt="大头会 001" />
+      </div>
+      <div class="body">
+        <h3>001｜一场关于 AGI 的十年赌局，聊聊 OpenAI</h3>
+        <div class="meta-line">
+          <span>EP. 001</span>
+          <span class="dot"></span>
+          <span>OpenAI</span>
+          <span class="dot"></span>
+          <span>2026</span>
+        </div>
+        <p class="desc">《大头会》开篇，我们聊 OpenAI。在它 2015 年成立时，没有 Transformer，更没有 ChatGPT，但为什么是这样一家连产品方向都不清晰的创业公司，开启了今天的 AI 时代？我们坐下来，反复回到同一个词：赌性坚强。从这里出发，我们聊 Sam Altman 这个人，聊他与马斯克的渐行渐远，聊从 OpenAI 走出去的那群人，也聊 AGI 离我们究竟还有多远。十年过去，OpenAI 已经改变了世界；但这场 AGI 赌局，远未到揭晓答案的时刻。</p>
+      </div>
+      <button type="button" class="play" aria-label="播放 EP. 001">
+        <svg viewBox="0 0 12 14" fill="currentColor"><path d="M0 0 L12 7 L0 14 Z"/></svg>
+      </button>
+    </article>
+  </section>
+</main>
+
+<div class="audio-dock" id="audioDock" role="region" aria-label="播放器" aria-live="polite">
+  <div class="audio-dock__head">
+    <h2 class="audio-dock__title" id="audioDockTitle"></h2>
+    <button type="button" class="audio-dock__close" aria-label="关闭播放器">×</button>
+  </div>
+  <div class="audio-dock__frame"></div>
+</div>
+
+<script>
+  (function () {
+    const dock = document.getElementById('audioDock');
+    const titleEl = document.getElementById('audioDockTitle');
+    const frameWrap = dock.querySelector('.audio-dock__frame');
+    const closeBtn = dock.querySelector('.audio-dock__close');
+
+    function openPlayer(src, title) {
+      titleEl.textContent = title || '';
+      const sep = src.includes('?') ? '&' : '?';
+      const autoplaySrc = src + sep + 'play=true';
+      frameWrap.innerHTML =
+        '<iframe width="100%" height="180" frameborder="no" scrolling="no" allow="autoplay" seamless src="' + autoplaySrc + '" title="' + (title || '') + '"></iframe>';
+      dock.classList.add('is-open');
+      document.body.classList.add('audio-dock-open');
+    }
+    function closePlayer() {
+      dock.classList.remove('is-open');
+      document.body.classList.remove('audio-dock-open');
+      // wait for slide-out, then tear down iframe to stop audio
+      setTimeout(function () { frameWrap.innerHTML = ''; }, 280);
+    }
+
+    document.querySelectorAll('.episode[data-audio] .play').forEach(function (btn) {
+      btn.addEventListener('click', function (e) {
+        e.preventDefault();
+        const ep = btn.closest('.episode');
+        openPlayer(ep.dataset.audio, ep.dataset.title || '');
+      });
+    });
+
+    closeBtn.addEventListener('click', closePlayer);
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape' && dock.classList.contains('is-open')) closePlayer();
+    });
+  })();
+</script>
+
+<footer class="site">
+  <div>© 2026 大头会 · datou.fm</div>
+  <div class="right">
+    <a href="mailto:hello@datou.fm">联系我们</a>
+    <a href="/">YouTube</a>
+    <a href="mailto:hello@datou.fm">Blog</a>
+  </div>
+</footer>
+
+</body>
+</html>
