@@ -20,6 +20,7 @@
     --brass: #b08856;
     --ink: #002147;
     --rule: rgba(0, 33, 71, 0.15);
+    --pill-edge: rgba(0, 33, 71, 0.35);
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
@@ -802,24 +803,84 @@
     .tabbar .tab:focus-visible { outline: 2px solid var(--brass); outline-offset: -3px; border-radius: 8px; }
     body { padding-bottom: calc(74px + env(safe-area-inset-bottom)); }
   }
+  /* ── SPA views ──────────────────────────────────── */
+  .view { display: none; }
+  .view.view--active { display: block; }
+  #view-events.view--active { display: flex; }
+  #view-events {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 48px 48px 72px;
+    min-height: calc(100vh - 250px);
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── read view (读书) ──────────────────────── */
+  #view-read .page-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 64px; align-items: end; padding-bottom: 36px; border-bottom: 1px solid var(--rule); }
+  #view-read .page-head .kicker { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 16px; color: var(--brass); letter-spacing: 0.32em; text-transform: uppercase; margin-bottom: 16px; }
+  #view-read .page-head h1 { font-family: 'Noto Serif SC', serif; font-weight: 600; font-size: clamp(32px, 4.4vw, 52px); line-height: 1.25; letter-spacing: 0.04em; margin: 0; color: var(--oxford); }
+  #view-read .page-head .lede { font-size: clamp(15px, 1.2vw, 16px); line-height: 1.75; color: rgba(0, 33, 71, 0.78); max-width: 46ch; margin: 0; text-wrap: pretty; }
+  #view-read .books { margin: 56px auto 0; max-width: 840px; display: grid; grid-template-columns: repeat(4, 135px); gap: 64px 100px; justify-content: center; }
+  #view-read .book { display: flex; flex-direction: column; width: 135px; text-align: left; }
+  #view-read .book .cover-link { display: block; text-decoration: none; line-height: 0; }
+  #view-read .book .cover { width: 135px; height: 203px; background: transparent; overflow: hidden; position: relative; display: flex; align-items: center; justify-content: center; transition: transform .35s ease; }
+  #view-read .book .cover img { max-width: 100%; max-height: 100%; width: auto; height: auto; display: block; box-shadow: 0 0 0 1px rgba(0, 33, 71, 0.14), 0 1px 0 rgba(0, 33, 71, 0.08), 0 12px 22px -6px rgba(0, 33, 71, 0.28); }
+  @media (hover: hover) { #view-read .book:hover .cover { transform: translateY(-2px); } }
+  #view-read .book .meta { margin-top: 12px; display: flex; flex-direction: column; gap: 6px; }
+  #view-read .book .actions { display: flex; margin-bottom: 2px; }
+  #view-read .book .pill { display: inline-flex; align-items: center; justify-content: center; padding: 5px 12px; font-family: 'Noto Serif SC', serif; font-size: 12.5px; letter-spacing: 0.04em; color: var(--oxford); background: rgba(0, 33, 71, 0.06); border: 1px solid var(--pill-edge); border-radius: 6px; text-decoration: none; white-space: nowrap; transition: background .2s ease, color .2s ease, border-color .2s ease; }
+  @media (hover: hover) { #view-read .book .pill:hover { background: var(--oxford); color: var(--bone); border-color: var(--oxford); } }
+  #view-read .book .pill:active { opacity: 0.6; }
+  #view-read .book h2 { font-family: 'Noto Serif SC', serif; font-weight: 600; font-size: 16px; line-height: 1.35; letter-spacing: 0.02em; margin: 2px 0 0; color: var(--oxford); text-wrap: balance; }
+  #view-read .book .author { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 13px; letter-spacing: 0.04em; color: var(--brass); margin: 0; }
+  #view-read .book .blurb { font-size: 12.5px; line-height: 1.55; color: rgba(0, 33, 71, 0.72); margin: 2px 0 0; text-wrap: pretty; }
+  #view-read .cover-link { touch-action: manipulation; -webkit-tap-highlight-color: transparent; -webkit-user-select: none; user-select: none; -webkit-touch-callout: none; cursor: pointer; }
+  #view-read .cover-link img { -webkit-touch-callout: none; }
+  #view-read .cover-link:focus-visible, #view-read .pill:focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; border-radius: 4px; }
+  @media (max-width: 1080px) { #view-read .books { grid-template-columns: repeat(3, 135px); max-width: 605px; gap: 56px 80px; } }
+  @media (max-width: 880px) { #view-read .page-head { grid-template-columns: 1fr; gap: 22px; align-items: start; } }
+  @media (max-width: 700px) { #view-read .books { grid-template-columns: repeat(2, 135px); max-width: 330px; gap: 48px 28px; } }
+  @media (max-width: 560px) { #view-read .books { grid-template-columns: repeat(2, 135px); max-width: 330px; gap: 40px 24px; } }
+  @media (max-width: 360px) { #view-read .books { grid-template-columns: 135px; max-width: 155px; gap: 36px; } }
+
+  /* ── events view (活动) ─────────────────── */
+  #view-events .invite { position: relative; width: 100%; max-width: 720px; background: var(--oxford); color: var(--cream); text-align: center; padding: clamp(56px, 9vw, 104px) clamp(28px, 7vw, 88px); overflow: hidden; }
+  #view-events .invite::after { content: ""; position: absolute; inset: 18px; border: 1px solid rgba(232, 217, 184, 0.28); pointer-events: none; }
+  #view-events .invite .mark { width: 64px; height: 38px; margin: 0 auto 26px; }
+  #view-events .invite .mark svg { width: 100%; height: 100%; display: block; }
+  #view-events .invite .kicker { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: clamp(13px, 1.6vw, 16px); letter-spacing: 0.34em; text-transform: uppercase; color: rgba(232, 217, 184, 0.62); margin: 0 0 28px; }
+  #view-events .invite .year { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 500; font-size: clamp(54px, 12vw, 116px); line-height: 0.92; letter-spacing: 0.01em; color: var(--cream); margin: 0; }
+  #view-events .invite .title { margin: 24px 0 0; color: var(--cream); }
+  #view-events .invite .title-sub { display: block; font-family: 'Noto Serif SC', serif; font-weight: 500; font-size: clamp(17px, 2.8vw, 24px); letter-spacing: 0.3em; text-indent: 0.3em; color: rgba(232, 217, 184, 0.72); margin-bottom: 14px; }
+  #view-events .invite .title-main { display: block; font-family: 'Noto Serif SC', serif; font-weight: 600; font-size: clamp(28px, 5.4vw, 50px); letter-spacing: 0.24em; text-indent: 0.24em; color: var(--cream); }
+  #view-events .invite .divider-line { width: 56px; height: 1px; background: var(--brass); margin: 32px auto; opacity: 0.8; }
+  #view-events .invite .await { font-family: 'Noto Serif SC', serif; font-weight: 400; font-size: clamp(15px, 2.1vw, 19px); letter-spacing: 0.42em; text-indent: 0.42em; color: rgba(232, 217, 184, 0.7); margin: 0; }
+  @media (max-width: 880px) { #view-events { padding: 40px 24px 64px; } }
+  @media (max-width: 480px) {
+    #view-events { padding: 28px 18px 48px; min-height: calc(100vh - 180px); }
+    #view-events .invite::after { inset: 12px; }
+    #view-events .invite .title-main { letter-spacing: 0.16em; text-indent: 0.16em; }
+    #view-events .invite .title-sub { letter-spacing: 0.22em; text-indent: 0.22em; }
+  }
 </style>
 </head>
 <body>
 
 <header class="site">
-  <a class="brand" href="/">
+  <a class="brand" href="#podcast">
     <span class="hanzi">大头会</span>
     <span class="divider"></span>
     <span class="latin">datou.fm</span>
   </a>
   <nav class="top">
-    <a href="#episodes">播客</a>
-    <a href="book.html">读书</a>
-    <a href="events.html">活动</a>
+    <a href="#podcast" data-view="podcast">播客</a>
+    <a href="#read" data-view="read">读书</a>
+    <a href="#events" data-view="events">活动</a>
   </nav>
 </header>
 
-<main>
+<main id="view-podcast" class="view">
   <section class="hero">
     <div class="hero-text">
       <h1><span class="lead">三个朋友，三座城市</span>一场关于 AI 时代的长谈</h1>
@@ -944,6 +1005,87 @@
       </div>
       <!-- play moved into thumb (EP.001) -->
     </article>
+  </section>
+</main>
+
+<main id="view-read" class="view">
+  <section class="page-head">
+    <div>
+      <div class="kicker">on reading</div>
+      <h1>读书</h1>
+    </div>
+    <p class="lede">每期节目背后，都有几本一直陪着我们的书。这里是我们正在读、反复回去读、想推荐给你的那些。</p>
+  </section>
+
+  <section class="books" aria-label="书单">
+    <article class="book" data-screen-label="Book 01">
+      <a class="cover-link" href="https://weread.qq.com/web/reader/0363228059b4000363b29e9" target="_blank" rel="noopener noreferrer" aria-label="书 01">
+        <div class="cover"><img src="assets/book-01.jpg" alt="书 01 封面" /></div>
+      </a>
+      <div class="meta">
+        <div class="actions"><a class="pill" href="https://weread.qq.com/web/reader/0363228059b4000363b29e9" target="_blank" rel="noopener noreferrer">微信读书</a></div>
+        <h2>重来</h2>
+        <div class="author">大头会推荐</div>
+        <p class="blurb">这部推崇精简、专注与独立，颠覆传统商业管理思路的创业经典值得在AI时代被重新打开</p>
+      </div>
+    </article>
+
+    <article class="book" data-screen-label="Book 02">
+      <a class="cover-link" href="https://item.jd.com/15202002.html" target="_blank" rel="noopener noreferrer" aria-label="书 02">
+        <div class="cover"><img src="assets/book-02.png" alt="书 02 封面" /></div>
+      </a>
+      <div class="meta">
+        <div class="actions"><a class="pill" href="https://item.jd.com/15202002.html?spmTag=YTAyNDAuYjAwMjQ5My5jMDAwMDQwMjcuMSUyM3NrdV9jYXJk&pvid=929e89d6389f44ffb9f32b8efa79e9a9" target="_blank" rel="noopener noreferrer">购买纸质书</a></div>
+        <h2>众神的家园</h2>
+        <div class="author">嘉宾Arthur推荐</div>
+        <p class="blurb">以东方视角横跨数千年，让普通读者也能既见树木，又见森林的古希腊通史：上卷</p>
+      </div>
+    </article>
+
+    <article class="book" data-screen-label="Book 03">
+      <a class="cover-link" href="https://item.jd.com/15202002.html" target="_blank" rel="noopener noreferrer" aria-label="书 03">
+        <div class="cover"><img src="assets/book-03.png" alt="书 03 封面" /></div>
+      </a>
+      <div class="meta">
+        <div class="actions"><a class="pill" href="https://item.jd.com/15202002.html?spmTag=YTAyNDAuYjAwMjQ5My5jMDAwMDQwMjcuMSUyM3NrdV9jYXJk&pvid=929e89d6389f44ffb9f32b8efa79e9a9" target="_blank" rel="noopener noreferrer">购买纸质书</a></div>
+        <h2>列王的国度</h2>
+        <div class="author">嘉宾Arthur推荐</div>
+        <p class="blurb">以东方视角横跨数千年，让普通读者也能既见树木，又见森林的古希腊通史：下卷</p>
+      </div>
+    </article>
+
+    <article class="book" data-screen-label="Book 04">
+      <a class="cover-link" href="https://weread.qq.com/web/bookDetail/afd32140811e3c576g01334e" target="_blank" rel="noopener noreferrer" aria-label="书 04">
+        <div class="cover"><img src="assets/book-04.jpg" alt="书 04 封面" /></div>
+      </a>
+      <div class="meta">
+        <div class="actions"><a class="pill" href="https://weread.qq.com/web/bookDetail/afd32140811e3c576g01334e" target="_blank" rel="noopener noreferrer">微信读书</a></div>
+        <h2>自然与希腊人</h2>
+        <div class="author">嘉宾Arthur推荐</div>
+        <p class="blurb">薄定谔的经典作品，在科学与人文的交汇处，回望古希腊先哲如何追问万物的本质</p>
+      </div>
+    </article>
+  </section>
+</main>
+
+<main id="view-events" class="view view-events">
+  <section class="invite">
+    <div class="mark" aria-hidden="true">
+      <svg viewBox="20 52 240 126" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M 30 170 A 110 110 0 0 1 250 170" fill="none" stroke="#e8d9b8" stroke-width="5" stroke-opacity="0.85" />
+        <path d="M 70 170 A 70 70 0 0 1 210 170" fill="none" stroke="#e8d9b8" stroke-width="5" stroke-opacity="0.85" />
+        <path d="M 105 170 A 35 35 0 0 1 175 170" fill="none" stroke="#e8d9b8" stroke-width="5" stroke-opacity="0.85" />
+        <circle cx="140" cy="170" r="5" fill="#b08856" />
+      </svg>
+    </div>
+    <p class="kicker">first anniversary</p>
+    <p class="year">2026.12</p>
+    <h1 class="title">
+      <span class="title-sub">大头会播客</span>
+      <span class="title-main">一周年庆典</span>
+    </h1>
+    <div class="divider-line"></div>
+    <p class="await">敬请期待</p>
   </section>
 </main>
 
@@ -1131,8 +1273,7 @@
       if (bc) { try { bc.postMessage({ type: 'play', id: INSTANCE_ID }); } catch (e) {} }
       try { localStorage.setItem(PLAYER_KEY, INSTANCE_ID + '|' + Date.now()); } catch (e) {}
     });
-    // stop audio on navigate-away / bfcache so nothing lingers in the background
-    window.addEventListener('pagehide', function () { audio.pause(); });
+    // (SPA) navigation no longer tears down audio — playback persists across views
     audio.addEventListener('loadedmetadata', function () { durEl.textContent = fmt(audio.duration); });
     audio.addEventListener('timeupdate', function () {
       if (seeking) return;
@@ -1178,19 +1319,54 @@
 </footer>
 
 <nav class="tabbar" aria-label="导航">
-  <a class="tab is-current" href="#episodes" aria-current="page">
+  <a class="tab" href="#podcast" data-view="podcast">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2.5" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><line x1="12" y1="17.5" x2="12" y2="21"/></svg>
     <span>播客</span>
   </a>
-  <a class="tab" href="book.html">
+  <a class="tab" href="#read" data-view="read">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4.5c2.6 0 5 .6 7 1.8v13c-2-1.2-4.4-1.8-7-1.8z"/><path d="M21 4.5c-2.6 0-5 .6-7 1.8v13c2-1.2 4.4-1.8 7-1.8z"/></svg>
     <span>读书</span>
   </a>
-  <a class="tab" href="events.html">
+  <a class="tab" href="#events" data-view="events">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><line x1="3.5" y1="9.5" x2="20.5" y2="9.5"/><line x1="8" y1="3" x2="8" y2="6"/><line x1="16" y1="3" x2="16" y2="6"/></svg>
     <span>活动</span>
   </a>
 </nav>
+
+<script>
+  (function () {
+    const views = {
+      podcast: document.getElementById('view-podcast'),
+      read: document.getElementById('view-read'),
+      events: document.getElementById('view-events')
+    };
+    const titles = {
+      podcast: '大头会 · datou.fm',
+      read: '读书 · 大头会 · datou.fm',
+      events: '活动 · 大头会 · datou.fm'
+    };
+    function viewFromHash() {
+      const h = (location.hash || '').replace('#', '');
+      if (h === 'read') return 'read';
+      if (h === 'events') return 'events';
+      return 'podcast';
+    }
+    function showView(v, doScroll) {
+      Object.keys(views).forEach(function (k) {
+        if (views[k]) views[k].classList.toggle('view--active', k === v);
+      });
+      document.querySelectorAll('[data-view]').forEach(function (a) {
+        const on = a.dataset.view === v;
+        a.classList.toggle('is-current', on);
+        if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
+      });
+      document.title = titles[v] || titles.podcast;
+      if (doScroll) window.scrollTo(0, 0);
+    }
+    window.addEventListener('hashchange', function () { showView(viewFromHash(), true); });
+    showView(viewFromHash(), false);
+  })();
+</script>
 
 </body>
 </html>
