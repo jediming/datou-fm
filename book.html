@@ -319,6 +319,27 @@
   footer.site a { color: rgba(0, 33, 71, 0.7); text-decoration: none; }
   footer.site a:hover { color: var(--brass); }
 
+  /* ── touch behaviour layer ───────────────────────── */
+  nav.top a, .brand, .cover-link, .pill {
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .cover-link, .pill {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    cursor: pointer;
+  }
+  .cover-link img { -webkit-touch-callout: none; }
+  .pill:active { opacity: 0.6; }
+  nav.top a:active { color: var(--brass); }
+  nav.top a:focus-visible, .brand:focus-visible,
+  .cover-link:focus-visible, .pill:focus-visible {
+    outline: 2px solid var(--brass);
+    outline-offset: 3px;
+    border-radius: 4px;
+  }
+
   /* ── responsive ──────────────────────────────────── */
   @media (max-width: 1080px) {
     .books { grid-template-columns: repeat(3, 135px); max-width: 605px; gap: 56px 80px; }
@@ -353,6 +374,41 @@
     main { padding: 32px 14px 48px; }
     .books { grid-template-columns: 135px; max-width: 155px; gap: 36px; }
   }
+  /* ── mobile bottom tab bar ───────────────────────── */
+  .tabbar { display: none; }
+  @media (max-width: 480px) {
+    nav.top { display: none; }
+    .tabbar {
+      display: flex;
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      z-index: 9998;
+      background: var(--bone);
+      border-top: 1px solid var(--rule);
+      padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+      box-shadow: 0 -8px 22px -16px rgba(0, 33, 71, 0.35);
+    }
+    .tabbar .tab {
+      flex: 1 1 0;
+      min-height: 48px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 4px;
+      text-decoration: none;
+      color: rgba(0, 33, 71, 0.5);
+      font-family: 'Noto Serif SC', serif;
+      font-size: 12px; font-weight: 500; letter-spacing: 0.14em;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-user-select: none; user-select: none;
+      cursor: pointer;
+      transition: color .15s ease;
+    }
+    .tabbar .tab svg { width: 22px; height: 22px; }
+    .tabbar .tab.is-current { color: var(--oxford); }
+    .tabbar .tab:active { color: var(--brass); }
+    .tabbar .tab:focus-visible { outline: 2px solid var(--brass); outline-offset: -3px; border-radius: 8px; }
+    body { padding-bottom: calc(74px + env(safe-area-inset-bottom)); }
+  }
 </style>
 </head>
 <body>
@@ -364,9 +420,9 @@
     <span class="latin">datou.fm</span>
   </a>
   <nav class="top">
+    <a href="index.html#episodes">播客</a>
     <a href="book.html" class="is-current">读书</a>
-    <a href="mailto:hello@datou.fm">活动</a>
-    <a href="mailto:hello@datou.fm">联系</a>
+    <a href="events.html">活动</a>
   </nav>
 </header>
 
@@ -453,9 +509,24 @@
   <div class="right">
     <a href="mailto:hello@datou.fm">联系我们</a>
     <a href="/">YouTube</a>
-    <a href="mailto:hello@datou.fm">Blog</a>
+    <a href="/">小宇宙</a>
   </div>
 </footer>
+
+<nav class="tabbar" aria-label="导航">
+  <a class="tab" href="index.html#episodes">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2.5" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><line x1="12" y1="17.5" x2="12" y2="21"/></svg>
+    <span>播客</span>
+  </a>
+  <a class="tab is-current" href="book.html" aria-current="page">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4.5c2.6 0 5 .6 7 1.8v13c-2-1.2-4.4-1.8-7-1.8z"/><path d="M21 4.5c-2.6 0-5 .6-7 1.8v13c2-1.2 4.4-1.8 7-1.8z"/></svg>
+    <span>读书</span>
+  </a>
+  <a class="tab" href="events.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><line x1="3.5" y1="9.5" x2="20.5" y2="9.5"/><line x1="8" y1="3" x2="8" y2="6"/><line x1="16" y1="3" x2="16" y2="6"/></svg>
+    <span>活动</span>
+  </a>
+</nav>
 
 </body>
 </html>

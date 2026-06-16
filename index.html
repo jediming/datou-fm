@@ -3,6 +3,9 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
 <title>大头会 · datou.fm</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -231,7 +234,7 @@
   /* episode cards (Acquired-style) */
   .episode {
     display: grid;
-    grid-template-columns: 168px minmax(0, 1fr) auto;    gap: 36px;
+    grid-template-columns: 168px minmax(0, 1fr);    gap: 36px;
     align-items: start;
     padding: 32px 0;
     border-bottom: 1px solid var(--rule);
@@ -268,6 +271,7 @@
     overflow: hidden;
     background: var(--oxford);
     position: relative;
+    cursor: pointer;
   }
   .episode .thumb img {
     width: 100%;
@@ -276,9 +280,10 @@
     object-position: center;
     transition: transform .5s ease;
   }
-  .episode:hover .thumb img { transform: scale(1.03); }
+  @media (hover: hover) {
+    .episode:hover .thumb img { transform: scale(1.03); }
+  }
   @media (hover: none) {
-    .episode:hover .thumb img { transform: none; }
     .episode:active { background-color: rgba(176, 136, 86, 0.04); }
     .episode { -webkit-tap-highlight-color: transparent; transition: background-color .2s ease; }
   }
@@ -307,72 +312,275 @@
   }
   .episode .meta-line .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--brass); }
 
-  /* docked mini player (Acquired-style) */
+  /* ── docked native play bar (Option A) ─────────────── */
   .audio-dock {
     position: fixed;
     right: 24px;
     bottom: 24px;
-    width: min(420px, calc(100vw - 32px));
+    width: min(460px, calc(100vw - 32px));
     background: var(--bone);
     border: 1px solid var(--rule);
-    border-radius: 8px;
+    border-radius: 10px;
     box-shadow: 0 18px 48px -16px rgba(0, 33, 71, 0.28), 0 4px 12px -4px rgba(0, 33, 71, 0.14);
-    padding: 16px 16px calc(12px + env(safe-area-inset-bottom));
+    padding: 14px 16px calc(14px + env(safe-area-inset-bottom));
     z-index: 9999;
     transform: translateY(calc(100% + 32px));
     opacity: 0;
     pointer-events: none;
     transition: transform .28s ease, opacity .2s ease;
-  }
-  .audio-dock.is-open {
-    transform: translateY(0);
-    opacity: 1;
-    pointer-events: auto;
-  }
-  .audio-dock__head {
     display: flex;
-    align-items: flex-start;
-    justify-content: space-between;
-    gap: 12px;
-    margin-bottom: 10px;
+    align-items: center;
+    gap: 14px;
   }
+  .audio-dock.is-open { transform: translateY(0); opacity: 1; pointer-events: auto; }
+  .audio-dock__cover {
+    flex: 0 0 auto;
+    width: 52px; height: 52px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: var(--oxford);
+  }
+  .audio-dock__cover img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .audio-dock__pp {
+    flex: 0 0 auto;
+    width: 46px; height: 46px;
+    border-radius: 50%;
+    border: 1px solid var(--oxford);
+    background: var(--oxford);
+    color: var(--bone);
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer;
+    padding: 0;
+    transition: opacity .2s;
+  }
+  .audio-dock__pp:hover { opacity: 0.85; }
+  .audio-dock__pp svg { width: 15px; height: 15px; }
+  .audio-dock__main { flex: 1 1 auto; min-width: 0; padding-right: 18px; display: flex; flex-direction: column; gap: 9px; }
   .audio-dock__title {
     font-family: 'Noto Serif SC', serif;
     font-weight: 600;
-    font-size: 14px;
+    font-size: 13px;
     color: var(--oxford);
-    letter-spacing: 0.04em;
+    letter-spacing: 0.03em;
     margin: 0;
-    line-height: 1.4;
+    line-height: 1.35;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
   }
-  .audio-dock__close {
+  .audio-dock__seek {
+    -webkit-appearance: none; appearance: none;
+    width: 100%;
+    height: 20px;                 /* taller invisible grab area for touch */
+    background: transparent;
+    cursor: pointer;
+    outline: none;
+    margin: 0;
+    touch-action: none;           /* let horizontal drag-to-seek win over page scroll */
+  }
+  .audio-dock__seek::-webkit-slider-runnable-track { height: 3px; border-radius: 2px; background: var(--rule); }
+  .audio-dock__seek::-moz-range-track { height: 3px; border-radius: 2px; background: var(--rule); }
+  .audio-dock__seek::-webkit-slider-thumb {
+    -webkit-appearance: none; appearance: none;
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--brass); cursor: pointer; border: 0;
+    margin-top: -5.5px;           /* centre thumb on the 3px track */
+  }
+  .audio-dock__seek::-moz-range-thumb {
+    width: 14px; height: 14px; border-radius: 50%;
+    background: var(--brass); cursor: pointer; border: 0;
+  }
+  /* controls row (skip / speed / volume / time) */
+  .audio-dock__controls { display: flex; align-items: center; gap: 10px; }
+  .audio-dock__ctrl {
     flex: 0 0 auto;
-    width: 36px; height: 36px;
+    width: 28px; height: 28px;
+    border: 0; background: transparent;
+    color: var(--oxford);
+    cursor: pointer; padding: 0;
+    display: flex; align-items: center; justify-content: center;
+    position: relative;
+    transition: opacity .2s;
+  }
+  .audio-dock__ctrl:hover { opacity: 0.55; }
+  .audio-dock__ctrl svg { width: 24px; height: 24px; }
+  .audio-dock__ctrl .n {
+    position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 8.5px; margin-top: 2px;
+    color: var(--oxford);
+  }
+  .audio-dock__speed {
+    flex: 0 0 auto;
+    min-width: 38px; height: 28px;
     border: 1px solid var(--rule);
     background: transparent;
-    border-radius: 50%;
+    border-radius: 7px;
     color: var(--oxford);
     cursor: pointer;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 20px; line-height: 1;
     font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 13px;
+    letter-spacing: 0.03em;
+    padding: 0 8px;
     transition: background .2s, color .2s;
+  }
+  .audio-dock__speed:hover { background: var(--oxford); color: var(--bone); }
+  .audio-dock__speedwrap { position: relative; flex: 0 0 auto; }
+  .audio-dock__speedmenu {
+    position: absolute;
+    bottom: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--bone);
+    border: 1px solid var(--rule);
+    border-radius: 10px;
+    box-shadow: 0 14px 34px -12px rgba(0, 33, 71, 0.38);
+    padding: 6px;
+    display: none;
+    flex-direction: column;
+    gap: 2px;
+    max-height: 232px;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    z-index: 6;
+    min-width: 86px;
+  }
+  .audio-dock__speedmenu.is-open { display: flex; }
+  .audio-dock__speedopt {
+    border: 0; background: transparent;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--oxford);
+    padding: 7px 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    text-align: center;
+    white-space: nowrap;
+    transition: background .15s, color .15s;
+  }
+  .audio-dock__speedopt:hover { background: rgba(0, 33, 71, 0.06); }
+  .audio-dock__speedopt.is-active { background: var(--oxford); color: var(--bone); }
+  .audio-dock__vol {
+    -webkit-appearance: none; appearance: none;
+    flex: 1 1 40px;
+    min-width: 36px;
+    display: none;
+    width: auto; height: 3px; border-radius: 2px;
+    background: var(--rule); cursor: pointer; outline: none;
+  }
+  .audio-dock__vol::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 11px; height: 11px; border-radius: 50%; background: var(--brass); cursor: pointer; border: 0; }
+  .audio-dock__vol::-moz-range-thumb { width: 11px; height: 11px; border-radius: 50%; background: var(--brass); cursor: pointer; border: 0; }
+  @media (min-width: 600px) { .audio-dock__vol { display: block; } }
+  .audio-dock__time {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 13px;
+    color: rgba(0, 33, 71, 0.6);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
+    flex: 0 0 auto;
+    padding-left: 2px;
+  }
+  @media (max-width: 599px) { .audio-dock__time { margin-left: auto; } }
+  .audio-dock__close {
+    position: absolute; top: 8px; right: 10px;
+    width: 26px; height: 26px;
+    border: 0; background: transparent;
+    color: rgba(0, 33, 71, 0.5);
+    cursor: pointer; font-size: 20px; line-height: 1;
+    font-family: 'Cormorant Garamond', serif;
     padding: 0;
   }
-  .audio-dock__close:hover { background: var(--oxford); color: var(--bone); }
-  .audio-dock iframe { display: block; width: 100%; border: 0; }
-  /* push page content up when dock is open so footer/last episode aren't hidden */
-  body.audio-dock-open { padding-bottom: 240px; }
+  .audio-dock__close:hover { color: var(--brass); }
+  body.audio-dock-open { padding-bottom: 185px; }
   @media (max-width: 480px) {
     .audio-dock {
-      right: 0; left: 0; bottom: 0;
-      width: auto;
-      padding: 14px 14px calc(10px + env(safe-area-inset-bottom));
-      border-radius: 12px 12px 0 0;
+      right: 0; left: 0; bottom: calc(64px + env(safe-area-inset-bottom)); width: auto;
+      border-radius: 14px 14px 0 0;
       border-left: 0; border-right: 0; border-bottom: 0;
+      gap: 10px;
+      padding: 12px 12px 12px;
     }
-    .audio-dock__title { font-size: 13px; }
-    body.audio-dock-open { padding-bottom: 260px; }
+    .audio-dock__cover { width: 44px; height: 44px; }
+    .audio-dock__pp { width: 44px; height: 44px; }
+    .audio-dock__main { padding-right: 6px; }
+    .audio-dock__controls { gap: 7px; }
+    .audio-dock__ctrl { width: 26px; height: 26px; }
+    .audio-dock__ctrl svg { width: 22px; height: 22px; }
+    .audio-dock__speed { min-width: 34px; height: 26px; font-size: 12px; padding: 0 7px; }
+    .audio-dock__time { font-size: 12px; }
+    #dockMute { display: none; }   /* volume = hardware on phones; frees room for 44px targets */
+    body.audio-dock-open { padding-bottom: calc(196px + env(safe-area-inset-bottom)); }
+  }
+  /* ── touch behaviour layer ──────────────────────────── */
+  .episode .thumb,
+  .episode .play,
+  .audio-dock__pp,
+  .audio-dock__ctrl,
+  .audio-dock__speed,
+  .audio-dock__close,
+  .audio-dock__speedopt,
+  nav.top a,
+  .brand,
+  .toggle-desc {
+    touch-action: manipulation;            /* kill 300ms delay + double-tap zoom */
+    -webkit-tap-highlight-color: transparent;
+  }
+  /* draggable sliders: take the gesture, don't let the page scroll steal it */
+  .audio-dock__seek,
+  .audio-dock__vol { touch-action: none; }
+  /* no text-select / no iOS long-press callout on controls + covers
+     (show-notes .desc deliberately excluded so they stay selectable) */
+  .episode .thumb,
+  .episode .thumb img,
+  .episode .play,
+  .audio-dock__pp,
+  .audio-dock__ctrl,
+  .audio-dock__speed,
+  .audio-dock__close,
+  .audio-dock__speedopt {
+    -webkit-user-select: none;
+    user-select: none;
+    -webkit-touch-callout: none;
+    cursor: pointer;                       /* required for :active to fire on iOS */
+  }
+  /* ≥44×44px tap targets via an invisible centred hit area (no layout bloat) */
+  .audio-dock__ctrl,
+  .audio-dock__speed { position: relative; }
+  .audio-dock__ctrl::before,
+  .audio-dock__speed::before {
+    content: "";
+    position: absolute;
+    top: 50%; left: 50%;
+    width: 44px; height: 44px;
+    transform: translate(-50%, -50%);
+  }
+  /* press feedback (shows on touch because cursor:pointer is set) */
+  .audio-dock__pp:active { transform: scale(0.95); }
+  .audio-dock__ctrl:active,
+  .audio-dock__speed:active,
+  .audio-dock__close:active { opacity: 0.5; }
+  @media (hover: none) {
+    .episode:active .play { background: var(--oxford); color: var(--bone); border-color: var(--cream); }
+  }
+  /* keep keyboard focus visible after stripping the tap highlight */
+  nav.top a:focus-visible,
+  .brand:focus-visible,
+  .episode .play:focus-visible,
+  .audio-dock__pp:focus-visible,
+  .audio-dock__ctrl:focus-visible,
+  .audio-dock__speed:focus-visible,
+  .audio-dock__close:focus-visible,
+  .audio-dock__speedopt:focus-visible,
+  .audio-dock__seek:focus-visible,
+  .toggle-desc:focus-visible {
+    outline: 2px solid var(--brass);
+    outline-offset: 3px;
+    border-radius: 4px;
   }
   .episode .desc {
     font-size: 15px;
@@ -384,42 +592,76 @@
     text-justify: inter-ideograph;
   }
   .episode .play {
-    width: 44px;
-    height: 44px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 54px;
+    height: 54px;
     border-radius: 50%;
-    border: 1px solid var(--rule);
-    background: rgba(255,255,255,0.4);
+    border: 1px solid rgba(232, 217, 184, 0.55);
+    background: rgba(0, 33, 71, 0.5);
+    -webkit-backdrop-filter: blur(2px);
+    backdrop-filter: blur(2px);
     display: flex;
     align-items: center;
     justify-content: center;
-    align-self: end;
-    color: var(--oxford);
+    color: var(--cream);
+    cursor: pointer;
     transition: all .2s ease;
-    flex-shrink: 0;
+    padding: 0;
   }
-  .episode:hover .play { background: var(--oxford); color: var(--bone); border-color: var(--oxford); }
-  .episode .play svg { width: 14px; height: 14px; }
+  @media (hover: hover) {
+    .episode:hover .play { background: var(--oxford); color: var(--bone); border-color: var(--cream); }
+  }
+  .episode .play svg { width: 16px; height: 16px; margin-left: 2px; }
+
+  /* mobile-only “expand full text” toggle */
+  .episode .toggle-desc { display: none; }
 
   @media (max-width: 720px) {
-    .episode { grid-template-columns: 96px minmax(0, 1fr) auto; gap: 18px; padding: 24px 0; }
+    .episode { grid-template-columns: 96px minmax(0, 1fr); gap: 18px; padding: 24px 0; }
     .episode .thumb { width: 96px; height: 96px; }
-    .episode .play { width: 44px; height: 44px; align-self: center; grid-column: 3; grid-row: 1 / span 2; }
-    .episode .body { grid-column: 2; }
-    .episode:hover .play { background: rgba(255,255,255,0.4); color: var(--oxford); border-color: var(--rule); }
-    .episode .play:active { background: var(--oxford); color: var(--bone); border-color: var(--oxford); }
+    .episode .play { width: 44px; height: 44px; }
+    .episode .play svg { width: 13px; height: 13px; }
   }
   @media (max-width: 480px) {
     .sections { margin-top: 56px; }
     .sections-head { padding-top: 18px; margin-bottom: 8px; }
     .sections-head .title { font-size: 22px; }
-    .episode { grid-template-columns: 84px minmax(0, 1fr) 44px; gap: 12px; padding: 20px 0; }
+    .episode { grid-template-columns: 84px minmax(0, 1fr); gap: 14px; padding: 20px 0; }
     .episode .thumb { width: 84px; height: 84px; }
+    .episode .play { width: 40px; height: 40px; }
+    .episode .play svg { width: 12px; height: 12px; }
     .episode .body h3 { margin-bottom: 8px; font-size: 16px; line-height: 1.4; }
     .episode .meta-line { font-size: 11px; gap: 8px; letter-spacing: 0.18em; margin-bottom: 10px; }
     .episode .desc {
       font-size: 14px;
       line-height: 1.75;
       text-align: left;            /* relax justify on narrow column */
+      display: -webkit-box;
+      -webkit-line-clamp: 4;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .episode .desc.is-expanded {
+      display: block;
+      -webkit-line-clamp: unset;
+      overflow: visible;
+    }
+    .episode .toggle-desc {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 4px 0;
+      background: none;
+      border: none;
+      color: var(--brass);
+      font-family: 'Cormorant Garamond', serif;
+      font-style: italic;
+      font-size: 14px;
+      letter-spacing: 0.08em;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
     }
   }
   .row .num {
@@ -525,6 +767,41 @@
     .hero-text .kicker { margin-bottom: 22px; }
     .signoff { margin-top: 24px; font-size: 15px; }
   }
+  /* ── mobile bottom tab bar ───────────────────────── */
+  .tabbar { display: none; }
+  @media (max-width: 480px) {
+    nav.top { display: none; }
+    .tabbar {
+      display: flex;
+      position: fixed;
+      left: 0; right: 0; bottom: 0;
+      z-index: 9998;
+      background: var(--bone);
+      border-top: 1px solid var(--rule);
+      padding: 8px 0 calc(8px + env(safe-area-inset-bottom));
+      box-shadow: 0 -8px 22px -16px rgba(0, 33, 71, 0.35);
+    }
+    .tabbar .tab {
+      flex: 1 1 0;
+      min-height: 48px;
+      display: flex; flex-direction: column;
+      align-items: center; justify-content: center; gap: 4px;
+      text-decoration: none;
+      color: rgba(0, 33, 71, 0.5);
+      font-family: 'Noto Serif SC', serif;
+      font-size: 12px; font-weight: 500; letter-spacing: 0.14em;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      -webkit-user-select: none; user-select: none;
+      cursor: pointer;
+      transition: color .15s ease;
+    }
+    .tabbar .tab svg { width: 22px; height: 22px; }
+    .tabbar .tab.is-current { color: var(--oxford); }
+    .tabbar .tab:active { color: var(--brass); }
+    .tabbar .tab:focus-visible { outline: 2px solid var(--brass); outline-offset: -3px; border-radius: 8px; }
+    body { padding-bottom: calc(74px + env(safe-area-inset-bottom)); }
+  }
 </style>
 </head>
 <body>
@@ -536,9 +813,9 @@
     <span class="latin">datou.fm</span>
   </a>
   <nav class="top">
+    <a href="#episodes">播客</a>
     <a href="book.html">读书</a>
-    <a href="mailto:hello@datou.fm">活动</a>
-    <a href="mailto:hello@datou.fm">联系</a>
+    <a href="events.html">活动</a>
   </nav>
 </header>
 
@@ -580,9 +857,12 @@
       <div class="meta"></div>
     </div>
 
-    <article class="episode is-live" data-audio="https://share.transistor.fm/e/affbd26e" data-title="大头会 004 · Arthur">
+    <article class="episode is-live" data-audio="https://audio.transistor.fm/m/shows/78077/c8397c88755ad8ecb9c11cbf0b14a2b5.mp3" data-title="大头会 004 · Arthur">
       <div class="thumb">
         <img src="assets/ep-cover.svg" alt="大头会 004" />
+        <button type="button" class="play" aria-label="播放 EP. 004">
+          <svg viewBox="0 0 12 14" fill="currentColor"><path d="M0 0 L12 7 L0 14 Z"/></svg>
+        </button>
       </div>
       <div class="body">
         <h3>004｜当古希腊遇上人工智能 | 对谈牛津校友 Arthur</h3>
@@ -594,15 +874,17 @@
           <span>2026</span>
         </div>
         <p class="desc">这一期，我们请来二十多年前的牛津同窗 Arthur——前麦肯锡合伙人，也是一位历史学者，近期出版新著《东方视角下的希腊文明史诗》。以此书为起点，我们从古希腊聊起：苏格拉底“承认无知”、毕达哥拉斯“万物皆数”，竟与今天的 AI 遥相呼应。我们聊 AI 如何冲击咨询与知识生产，更聊在这场浪潮里普通人该如何自处——是 FOMO 还是活在当下？AI 会不会反而把人类从高度工业分工的“螺丝钉”中彻底解放出来，去活出人生的宽度？从牛津记忆出发，穿过希腊文明，走向一个正在到来的 AI 世界。</p>
+        <button type="button" class="toggle-desc" aria-expanded="false">展开全文</button>
       </div>
-      <button type="button" class="play" aria-label="播放 EP. 004">
-        <svg viewBox="0 0 12 14" fill="currentColor"><path d="M0 0 L12 7 L0 14 Z"/></svg>
-      </button>
+      <!-- play moved into thumb (EP.004) -->
     </article>
 
-    <article class="episode is-live" data-audio="https://share.transistor.fm/e/119f6080" data-title="大头会 003 · AI Economics">
+    <article class="episode is-live" data-audio="https://audio.transistor.fm/m/shows/78077/55d25aff75e97bdcd724d25bf888463e.mp3" data-title="大头会 003 · AI Economics">
       <div class="thumb">
         <img src="assets/ep-cover.svg" alt="大头会 003" />
+        <button type="button" class="play" aria-label="播放 EP. 003">
+          <svg viewBox="0 0 12 14" fill="currentColor"><path d="M0 0 L12 7 L0 14 Z"/></svg>
+        </button>
       </div>
       <div class="body">
         <h3>003｜Token 时代：聊聊 AI 的成本、能力与边界</h3>
@@ -614,15 +896,17 @@
           <span>2026</span>
         </div>
         <p class="desc">本期，我们讲讲 Token（词元）。最初，我们关心的是模型能回答什么；进入 Agent 时代后，每一次任务都在消耗成千上万的 Token——这个时代的成本、能力与边界，都开始用 Token 来计量。问题变成了：每一次智能到底消耗多少成本，又创造多少价值？我们聊中国万亿级的 Token 调用，聊 Agentic coding 的真实账单，也聊 AI 的能力边界：当机器越来越擅长可计算的事情，不可计算的部分还剩下什么？这个问题，AI 自己可能答不上来。</p>
+        <button type="button" class="toggle-desc" aria-expanded="false">展开全文</button>
       </div>
-      <button type="button" class="play" aria-label="播放 EP. 003">
-        <svg viewBox="0 0 12 14" fill="currentColor"><path d="M0 0 L12 7 L0 14 Z"/></svg>
-      </button>
+      <!-- play moved into thumb (EP.003) -->
     </article>
 
-    <article class="episode is-live" data-audio="https://share.transistor.fm/e/1879b4ab" data-title="大头会 002 · Tesla">
+    <article class="episode is-live" data-audio="https://audio.transistor.fm/m/shows/78077/3f6de705bfec8e86b80c54866b8b8b00.mp3" data-title="大头会 002 · Tesla">
       <div class="thumb">
         <img src="assets/ep-cover.svg" alt="大头会 002" />
+        <button type="button" class="play" aria-label="播放 EP. 002">
+          <svg viewBox="0 0 12 14" fill="currentColor"><path d="M0 0 L12 7 L0 14 Z"/></svg>
+        </button>
       </div>
       <div class="body">
         <h3>002｜从濒临破产到机器人的黎明：聊聊特斯拉</h3>
@@ -634,15 +918,17 @@
           <span>2026</span>
         </div>
         <p class="desc">特斯拉这家公司最值得记住的时刻，或许不是股价新高，也不是市值神话，而是 2008 年那个濒临破产的冬天—马斯克把自己最后的两千多万美金压上，在金融危机最深处，把公司从悬崖边拉了回来。我们聊那一年究竟发生了什么，聊为什么偏偏是这样一个偏执的人，能把电动车这件难事干成，也聊从汽车、自动驾驶到人形机器人，特斯拉究竟在通往哪里。一个时代还没有名字，但它已经在路上。</p>
+        <button type="button" class="toggle-desc" aria-expanded="false">展开全文</button>
       </div>
-      <button type="button" class="play" aria-label="播放 EP. 002">
-        <svg viewBox="0 0 12 14" fill="currentColor"><path d="M0 0 L12 7 L0 14 Z"/></svg>
-      </button>
+      <!-- play moved into thumb (EP.002) -->
     </article>
 
-    <article class="episode is-live" data-audio="https://share.transistor.fm/e/8a94e104" data-title="大头会 001 · OpenAI">
+    <article class="episode is-live" data-audio="https://audio.transistor.fm/m/shows/78077/52136271805b8ebbbbf380a71a63843e.mp3" data-title="大头会 001 · OpenAI">
       <div class="thumb">
         <img src="assets/ep-cover.svg" alt="大头会 001" />
+        <button type="button" class="play" aria-label="播放 EP. 001">
+          <svg viewBox="0 0 12 14" fill="currentColor"><path d="M0 0 L12 7 L0 14 Z"/></svg>
+        </button>
       </div>
       <div class="body">
         <h3>001｜一场关于 AGI 的十年赌局，聊聊 OpenAI</h3>
@@ -654,56 +940,230 @@
           <span>2026</span>
         </div>
         <p class="desc">《大头会》开篇，我们聊 OpenAI。在它 2015 年成立时，没有 Transformer，更没有 ChatGPT，但为什么是这样一家连产品方向都不清晰的创业公司，开启了今天的 AI 时代？我们坐下来，反复回到同一个词：赌性坚强。从这里出发，我们聊 Sam Altman 这个人，聊他与马斯克的渐行渐远，聊从 OpenAI 走出去的那群人，也聊 AGI 离我们究竟还有多远。十年过去，OpenAI 已经改变了世界；但这场 AGI 赌局，远未到揭晓答案的时刻。</p>
+        <button type="button" class="toggle-desc" aria-expanded="false">展开全文</button>
       </div>
-      <button type="button" class="play" aria-label="播放 EP. 001">
-        <svg viewBox="0 0 12 14" fill="currentColor"><path d="M0 0 L12 7 L0 14 Z"/></svg>
-      </button>
+      <!-- play moved into thumb (EP.001) -->
     </article>
   </section>
 </main>
 
 <div class="audio-dock" id="audioDock" role="region" aria-label="播放器" aria-live="polite">
-  <div class="audio-dock__head">
+  <div class="audio-dock__cover"><img id="dockCover" src="assets/ep-cover.svg" alt="" /></div>
+  <button type="button" class="audio-dock__pp" id="dockPP" aria-label="播放/暂停">
+    <svg viewBox="0 0 12 14" fill="currentColor"><path d="M0 0 L12 7 L0 14 Z"/></svg>
+  </button>
+  <div class="audio-dock__main">
     <h2 class="audio-dock__title" id="audioDockTitle"></h2>
-    <button type="button" class="audio-dock__close" aria-label="关闭播放器">×</button>
+    <input type="range" class="audio-dock__seek" id="dockSeek" min="0" max="1000" value="0" aria-label="进度" />
+    <div class="audio-dock__controls">
+      <button type="button" class="audio-dock__ctrl" id="dockBack" aria-label="后退 10 秒">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><polyline points="3 4 3 9 8 9"/></svg>
+        <span class="n">10</span>
+      </button>
+      <div class="audio-dock__speedwrap">
+        <button type="button" class="audio-dock__speed" id="dockSpeed" aria-haspopup="true" aria-expanded="false" aria-label="播放速度">1X</button>
+        <div class="audio-dock__speedmenu" id="dockSpeedMenu" role="menu" aria-label="播放速度"></div>
+      </div>
+      <button type="button" class="audio-dock__ctrl" id="dockFwd" aria-label="前进 30 秒">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7"/><polyline points="21 4 21 9 16 9"/></svg>
+        <span class="n">30</span>
+      </button>
+      <button type="button" class="audio-dock__ctrl" id="dockMute" aria-label="静音 / 取消静音">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" stroke="none"/><path d="M16 8.5a4 4 0 0 1 0 7"/><path d="M18.7 6a7 7 0 0 1 0 12"/></svg>
+      </button>
+      <input type="range" class="audio-dock__vol" id="dockVol" min="0" max="100" value="100" aria-label="音量" />
+      <span class="audio-dock__time" id="dockTime"><span id="dockCur">00:00</span> | <span id="dockDur">00:00</span></span>
+    </div>
   </div>
-  <div class="audio-dock__frame"></div>
+  <button type="button" class="audio-dock__close" aria-label="关闭播放器">×</button>
 </div>
+
+<audio id="dockAudio" preload="metadata" playsinline></audio>
 
 <script>
   (function () {
     const dock = document.getElementById('audioDock');
     const titleEl = document.getElementById('audioDockTitle');
-    const frameWrap = dock.querySelector('.audio-dock__frame');
     const closeBtn = dock.querySelector('.audio-dock__close');
+    const cover = document.getElementById('dockCover');
+    const ppBtn = document.getElementById('dockPP');
+    const seek = document.getElementById('dockSeek');
+    const curEl = document.getElementById('dockCur');
+    const durEl = document.getElementById('dockDur');
+    const backBtn = document.getElementById('dockBack');
+    const fwdBtn = document.getElementById('dockFwd');
+    const speedBtn = document.getElementById('dockSpeed');
+    const muteBtn = document.getElementById('dockMute');
+    const volEl = document.getElementById('dockVol');
 
-    function openPlayer(src, title) {
-      titleEl.textContent = title || '';
-      const sep = src.includes('?') ? '&' : '?';
-      const autoplaySrc = src + sep + 'play=true';
-      frameWrap.innerHTML =
-        '<iframe width="100%" height="180" frameborder="no" scrolling="no" allow="autoplay" seamless src="' + autoplaySrc + '" title="' + (title || '') + '"></iframe>';
+    const PLAY = '<svg viewBox="0 0 12 14" fill="currentColor"><path d="M0 0 L12 7 L0 14 Z"/></svg>';
+    const PAUSE = '<svg viewBox="0 0 12 14" fill="currentColor"><rect x="0" y="0" width="4" height="14"/><rect x="8" y="0" width="4" height="14"/></svg>';
+    const VOL_ON = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" stroke="none"/><path d="M16 8.5a4 4 0 0 1 0 7"/><path d="M18.7 6a7 7 0 0 1 0 12"/></svg>';
+    const VOL_OFF = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="currentColor" stroke="none"/><line x1="15.5" y1="9.5" x2="20.5" y2="14.5"/><line x1="20.5" y1="9.5" x2="15.5" y2="14.5"/></svg>';
+
+    const audio = document.getElementById('dockAudio');
+    let currentEp = null;
+    let seeking = false;
+    const speedMenu = document.getElementById('dockSpeedMenu');
+    const SPEEDS = [];
+    for (let s = 50; s <= 350; s += 25) SPEEDS.push(s / 100);
+    let currentRate = 1;
+
+    function fmt(t) { if (!isFinite(t) || t < 0) t = 0; t = Math.floor(t); const m = Math.floor(t / 60), s = t % 60; return String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0'); }
+
+    function syncIcons() {
+      document.querySelectorAll('.episode .play').forEach(function (btn) {
+        const ep = btn.closest('.episode');
+        const playing = (ep === currentEp && !audio.paused);
+        btn.innerHTML = playing ? PAUSE : PLAY;
+        ep.classList.toggle('is-playing', ep === currentEp);
+        btn.setAttribute('aria-label', (playing ? '暂停 ' : '播放 ') + (ep.dataset.title || ''));
+      });
+      ppBtn.innerHTML = (currentEp && !audio.paused) ? PAUSE : PLAY;
+    }
+
+    function playEpisode(ep) {
+      if (currentEp === ep) {
+        if (audio.paused) audio.play().catch(function () {}); else audio.pause();
+        dock.classList.add('is-open');
+        document.body.classList.add('audio-dock-open');
+        return;
+      }
+      // start playback first, in the tap gesture, so one tap = play
+      currentEp = ep;
+      audio.src = ep.dataset.audio;
+      const p = audio.play();
+      if (p && p.catch) p.catch(function () {});
+      audio.playbackRate = currentRate;
+      titleEl.textContent = ep.dataset.title || '';
+      const img = ep.querySelector('.thumb img');
+      if (img) cover.src = img.getAttribute('src');
+      curEl.textContent = '0:00';
+      durEl.textContent = '0:00';
+      seek.value = 0;
       dock.classList.add('is-open');
       document.body.classList.add('audio-dock-open');
     }
-    function closePlayer() {
-      dock.classList.remove('is-open');
-      document.body.classList.remove('audio-dock-open');
-      // wait for slide-out, then tear down iframe to stop audio
-      setTimeout(function () { frameWrap.innerHTML = ''; }, 280);
-    }
 
-    document.querySelectorAll('.episode[data-audio] .play').forEach(function (btn) {
-      btn.addEventListener('click', function (e) {
+    document.querySelectorAll('.episode[data-audio] .thumb').forEach(function (thumb) {
+      thumb.addEventListener('click', function (e) {
         e.preventDefault();
-        const ep = btn.closest('.episode');
-        openPlayer(ep.dataset.audio, ep.dataset.title || '');
+        playEpisode(thumb.closest('.episode'));
       });
     });
 
+    ppBtn.addEventListener('click', function () {
+      if (!currentEp) return;
+      if (audio.paused) audio.play().catch(function () {}); else audio.pause();
+    });
+
+    backBtn.addEventListener('click', function () { audio.currentTime = Math.max(0, audio.currentTime - 10); });
+    fwdBtn.addEventListener('click', function () { const end = audio.duration || Infinity; audio.currentTime = Math.min(end, audio.currentTime + 30); });
+    speedBtn.addEventListener('click', function (e) {
+      e.stopPropagation();
+      if (speedMenu.classList.contains('is-open')) closeSpeedMenu(); else openSpeedMenu();
+    });
+    function buildSpeedMenu() {
+      speedMenu.innerHTML = '';
+      SPEEDS.forEach(function (r) {
+        const opt = document.createElement('button');
+        opt.type = 'button';
+        opt.className = 'audio-dock__speedopt' + (r === currentRate ? ' is-active' : '');
+        opt.setAttribute('role', 'menuitemradio');
+        opt.setAttribute('aria-checked', r === currentRate ? 'true' : 'false');
+        opt.textContent = r + 'X';
+        opt.addEventListener('click', function (e) {
+          e.stopPropagation();
+          currentRate = r;
+          audio.playbackRate = r;
+          speedBtn.textContent = r + 'X';
+          closeSpeedMenu();
+        });
+        speedMenu.appendChild(opt);
+      });
+    }
+    function openSpeedMenu() {
+      buildSpeedMenu();
+      speedMenu.classList.add('is-open');
+      speedBtn.setAttribute('aria-expanded', 'true');
+      const act = speedMenu.querySelector('.is-active');
+      if (act) speedMenu.scrollTop = Math.max(0, act.offsetTop - 84);
+    }
+    function closeSpeedMenu() {
+      speedMenu.classList.remove('is-open');
+      speedBtn.setAttribute('aria-expanded', 'false');
+    }
+    document.addEventListener('click', function (e) {
+      if (speedMenu.classList.contains('is-open') && !speedMenu.contains(e.target) && e.target !== speedBtn) closeSpeedMenu();
+    });
+    muteBtn.addEventListener('click', function () {
+      audio.muted = !audio.muted;
+      if (!audio.muted && audio.volume === 0) { audio.volume = 1; volEl.value = 100; }
+      muteBtn.innerHTML = audio.muted ? VOL_OFF : VOL_ON;
+    });
+    volEl.addEventListener('input', function () {
+      audio.volume = volEl.value / 100;
+      audio.muted = (audio.volume === 0);
+      muteBtn.innerHTML = audio.muted ? VOL_OFF : VOL_ON;
+    });
+
+    audio.addEventListener('play', syncIcons);
+    audio.addEventListener('pause', syncIcons);
+
+    // Single player across tabs / preview iframes: when audio starts in one
+    // instance, every other instance pauses and hides its bar. Prevents
+    // "ghost" audio you can still hear after the visible player is gone.
+    const PLAYER_KEY = 'datou-fm-player-instance';
+    const INSTANCE_ID = Math.random().toString(36).slice(2);
+    let bc = null;
+    try { bc = new BroadcastChannel('datou-fm-player'); } catch (e) {}
+    function stopForOther(id) {
+      if (id === INSTANCE_ID) return;
+      if (!audio.paused) audio.pause();
+      dock.classList.remove('is-open');
+      document.body.classList.remove('audio-dock-open');
+    }
+    if (bc) bc.onmessage = function (e) { if (e.data && e.data.type === 'play') stopForOther(e.data.id); };
+    window.addEventListener('storage', function (e) {
+      if (e.key === PLAYER_KEY && e.newValue) stopForOther(e.newValue.split('|')[0]);
+    });
+    audio.addEventListener('play', function () {
+      if (bc) { try { bc.postMessage({ type: 'play', id: INSTANCE_ID }); } catch (e) {} }
+      try { localStorage.setItem(PLAYER_KEY, INSTANCE_ID + '|' + Date.now()); } catch (e) {}
+    });
+    // stop audio on navigate-away / bfcache so nothing lingers in the background
+    window.addEventListener('pagehide', function () { audio.pause(); });
+    audio.addEventListener('loadedmetadata', function () { durEl.textContent = fmt(audio.duration); });
+    audio.addEventListener('timeupdate', function () {
+      if (seeking) return;
+      curEl.textContent = fmt(audio.currentTime);
+      if (audio.duration) seek.value = (audio.currentTime / audio.duration) * 1000;
+    });
+    audio.addEventListener('ended', function () { seek.value = 0; curEl.textContent = '0:00'; syncIcons(); });
+
+    seek.addEventListener('input', function () { seeking = true; if (audio.duration) curEl.textContent = fmt(audio.duration * seek.value / 1000); });
+    seek.addEventListener('change', function () { if (audio.duration) audio.currentTime = audio.duration * seek.value / 1000; seeking = false; });
+
+    function closePlayer() {
+      audio.pause();
+      dock.classList.remove('is-open');
+      document.body.classList.remove('audio-dock-open');
+    }
     closeBtn.addEventListener('click', closePlayer);
     document.addEventListener('keydown', function (e) {
-      if (e.key === 'Escape' && dock.classList.contains('is-open')) closePlayer();
+      if (e.key !== 'Escape') return;
+      if (speedMenu.classList.contains('is-open')) { closeSpeedMenu(); return; }
+      if (dock.classList.contains('is-open')) closePlayer();
+    });
+
+    // expand / collapse long episode descriptions (mobile)
+    document.querySelectorAll('.episode .toggle-desc').forEach(function (btn) {
+      btn.addEventListener('click', function () {
+        const desc = btn.closest('.body').querySelector('.desc');
+        const expanded = desc.classList.toggle('is-expanded');
+        btn.textContent = expanded ? '收起' : '展开全文';
+        btn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
+      });
     });
   })();
 </script>
@@ -713,9 +1173,24 @@
   <div class="right">
     <a href="mailto:hello@datou.fm">联系我们</a>
     <a href="/">YouTube</a>
-    <a href="mailto:hello@datou.fm">Blog</a>
+    <a href="/">小宇宙</a>
   </div>
 </footer>
+
+<nav class="tabbar" aria-label="导航">
+  <a class="tab is-current" href="#episodes" aria-current="page">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2.5" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0"/><line x1="12" y1="17.5" x2="12" y2="21"/></svg>
+    <span>播客</span>
+  </a>
+  <a class="tab" href="book.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 4.5c2.6 0 5 .6 7 1.8v13c-2-1.2-4.4-1.8-7-1.8z"/><path d="M21 4.5c-2.6 0-5 .6-7 1.8v13c2-1.2 4.4-1.8 7-1.8z"/></svg>
+    <span>读书</span>
+  </a>
+  <a class="tab" href="events.html">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><rect x="3.5" y="5" width="17" height="15" rx="2.5"/><line x1="3.5" y1="9.5" x2="20.5" y2="9.5"/><line x1="8" y1="3" x2="8" y2="6"/><line x1="16" y1="3" x2="16" y2="6"/></svg>
+    <span>活动</span>
+  </a>
+</nav>
 
 </body>
 </html>
