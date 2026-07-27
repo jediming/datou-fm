@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>读书 · 大头会 · datou.fm</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&display=swap" rel="stylesheet">
+<link rel="icon" href="assets/mark.svg">
+<link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+<style>
+  :root {
+    --oxford: #002147;
+    --cream: #e8d9b8;
+    --bone: #f3ece0;
+    --brass: #b08856;
+    --ink: #002147;
+    --rule: rgba(0, 33, 71, 0.15);
+    --pill-edge: rgba(0, 33, 71, 0.35);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  html {
+    -webkit-text-size-adjust: 100%;
+    text-size-adjust: 100%;
+    scroll-behavior: smooth;
+  }
+  body {
+    background: var(--bone);
+    color: var(--ink);
+    font-family: 'Noto Serif SC', 'Songti SC', 'STSong', serif;
+    font-size: 17px;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+  }
+  a { color: var(--oxford); text-decoration: underline; text-underline-offset: 3px; text-decoration-thickness: 1px; transition: color .2s; }
+  a:hover { color: var(--brass); }
+
+  /* ── header ───────────────────────────────────────── */
+  header.site {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 28px 48px 0;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    row-gap: 12px;
+  }
+  .brand {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 16px;
+    text-decoration: none;
+  }
+  .brand .hanzi {
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 600;
+    font-size: 24px;
+    letter-spacing: 0.18em;
+    color: var(--oxford);
+  }
+  .brand .divider {
+    display: inline-block;
+    width: 1px;
+    height: 18px;
+    background: var(--brass);
+    opacity: 0.5;
+    align-self: center;
+  }
+  .brand .latin {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 22px;
+    letter-spacing: 0.06em;
+    color: var(--brass);
+  }
+  nav.top { display: flex; gap: 28px; }
+  nav.top a {
+    text-decoration: none;
+    font-size: 15px;
+    color: var(--oxford);
+    letter-spacing: 0.05em;
+    padding: 10px 0;
+    -webkit-tap-highlight-color: transparent;
+    transition: color .15s ease;
+  }
+  nav.top a:hover { color: var(--brass); }
+  nav.top a.is-current { color: var(--brass); }
+
+  /* ── main ────────────────────────────────────────── */
+  main {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 64px 48px 96px;
+  }
+
+  /* page intro */
+  .page-head {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 64px;
+    align-items: end;
+    padding-bottom: 36px;
+    border-bottom: 1px solid var(--rule);
+  }
+  .page-head .kicker {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 16px;
+    color: var(--brass);
+    letter-spacing: 0.32em;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+  .page-head h1 {
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 600;
+    font-size: clamp(32px, 4.4vw, 52px);
+    line-height: 1.25;
+    letter-spacing: 0.04em;
+    margin: 0;
+    color: var(--oxford);
+  }
+  .page-head .lede {
+    font-size: clamp(15px, 1.2vw, 16px);
+    line-height: 1.75;
+    color: rgba(0, 33, 71, 0.78);
+    max-width: 46ch;
+    margin: 0;
+    text-wrap: pretty;
+  }
+
+  /* ── book grid (mirrors bookmarked.club: 4 × 250px, 20px gap) ── */
+  .books {
+    margin: 56px auto 0;
+    max-width: 840px;             /* 4·135 + 3·100 = 840 */
+    display: grid;
+    grid-template-columns: repeat(4, 135px);
+    gap: 64px 100px;
+    justify-content: center;
+  }
+  .book {
+    display: flex;
+    flex-direction: column;
+    width: 135px;
+    text-align: left;
+  }
+  .book .cover-link {
+    display: block;
+    text-decoration: none;
+    line-height: 0;               /* kill img baseline gap */
+  }
+  .book .cover {
+    width: 135px;
+    height: 203px;
+    background: transparent;
+    overflow: hidden;
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform .35s ease;
+  }
+  .book .cover img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    display: block;
+    /* hairline edge keeps light covers defined on the bone bg */
+    box-shadow:
+      0 0 0 1px rgba(0, 33, 71, 0.14),
+      0 1px 0 rgba(0, 33, 71, 0.08),
+      0 12px 22px -6px rgba(0, 33, 71, 0.28);
+  }
+  /* placeholder — dark oxford fill only when there's no image */
+  .book .cover.placeholder {
+    aspect-ratio: 2 / 3;
+    height: auto;
+    background: var(--oxford);
+    box-shadow:
+      0 1px 0 rgba(0, 33, 71, 0.12),
+      0 12px 22px -14px rgba(0, 33, 71, 0.45);
+  }
+  .book:hover .cover { transform: translateY(-2px); }
+
+  /* spine highlight — only for placeholder, real covers have their own design */
+  .book .cover.placeholder::before {
+    content: "";
+    position: absolute;
+    top: 0; bottom: 0; left: 0;
+    width: 7px;
+    background: linear-gradient(
+      to right,
+      rgba(0,0,0,0.18) 0%,
+      rgba(0,0,0,0.06) 40%,
+      rgba(255,255,255,0.08) 70%,
+      rgba(255,255,255,0) 100%
+    );
+    pointer-events: none;
+    z-index: 2;
+  }
+
+  /* placeholder cover */
+  .book .cover.placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 18px;
+  }
+  .book .cover.placeholder::after {
+    content: "";
+    position: absolute;
+    inset: 12px;
+    border: 1px solid rgba(232, 217, 184, 0.28);
+    pointer-events: none;
+  }
+  .book .cover.placeholder .ph-label {
+    position: relative;
+    z-index: 1;
+    text-align: center;
+    color: var(--cream);
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 11px;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+  .book .cover.placeholder .ph-num {
+    display: block;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 34px;
+    letter-spacing: 0.04em;
+    margin-bottom: 6px;
+    opacity: 0.85;
+  }
+
+  .book .meta {
+    margin-top: 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .book .actions {
+    display: flex;
+    margin-bottom: 2px;
+  }
+  /* compact CTA — mirrors bookmarked.club's "Get on Amazon" button */
+  .book .pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5px 12px;
+    font-family: 'Noto Serif SC', serif;
+    font-size: 12.5px;
+    letter-spacing: 0.04em;
+    color: var(--oxford);
+    background: rgba(0, 33, 71, 0.06);
+    border: 1px solid var(--pill-edge);
+    border-radius: 6px;
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background .2s ease, color .2s ease, border-color .2s ease;
+  }
+  .book .pill:hover {
+    background: var(--oxford);
+    color: var(--bone);
+    border-color: var(--oxford);
+  }
+  .book h2 {
+    font-family: 'Noto Serif SC', serif;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 1.35;
+    letter-spacing: 0.02em;
+    margin: 2px 0 0;
+    color: var(--oxford);
+    text-wrap: balance;
+  }
+  .book .author {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 13px;
+    letter-spacing: 0.04em;
+    color: var(--brass);
+    margin: 0;
+  }
+  .book .blurb {
+    font-size: 12.5px;
+    line-height: 1.55;
+    color: rgba(0, 33, 71, 0.72);
+    margin: 2px 0 0;
+    text-wrap: pretty;
+  }
+
+  /* ── footer ──────────────────────────────────────── */
+  footer.site {
+    max-width: 1180px;
+    margin: 24px auto 0;
+    padding: 48px 48px 56px;
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: rgba(0, 33, 71, 0.55);
+    letter-spacing: 0.08em;
+    border-top: 1px solid var(--rule);
+  }
+  footer.site .right { display: flex; gap: 22px; }
+  footer.site a { color: rgba(0, 33, 71, 0.7); text-decoration: none; }
+  footer.site a:hover { color: var(--brass); }
+
+  /* ── responsive ──────────────────────────────────── */
+  @media (max-width: 1080px) {
+    .books { grid-template-columns: repeat(3, 135px); max-width: 605px; gap: 56px 80px; }
+  }
+  @media (max-width: 880px) {
+    header.site { padding: 22px 24px 0; }
+    main { padding: 48px 24px 64px; }
+    .page-head { grid-template-columns: 1fr; gap: 22px; align-items: start; }
+    nav.top { gap: 18px; }
+    nav.top a { font-size: 14px; }
+    footer.site { flex-direction: column; gap: 14px; padding: 32px 24px; }
+  }
+  @media (max-width: 700px) {
+    .books { grid-template-columns: repeat(2, 135px); max-width: 330px; gap: 48px 28px; }
+  }
+  @media (max-width: 560px) {
+    header.site { padding: 18px 18px 0; gap: 8px; }
+    main { padding: 36px 18px 56px; }
+    .books { grid-template-columns: repeat(2, 135px); max-width: 330px; gap: 40px 24px; }
+    footer.site { padding: 28px 18px 36px; gap: 12px; }
+    footer.site .right { flex-wrap: wrap; gap: 16px; row-gap: 8px; }
+
+    .brand { gap: 12px; }
+    .brand .hanzi { font-size: 22px; letter-spacing: 0.16em; }
+    .brand .latin { font-size: 18px; }
+    .brand .divider { height: 16px; }
+
+    nav.top { width: 100%; justify-content: flex-start; gap: 22px; }
+    nav.top a { font-size: 14px; padding: 12px 0; letter-spacing: 0.06em; }
+  }
+  @media (max-width: 360px) {
+    main { padding: 32px 14px 48px; }
+    .books { grid-template-columns: 135px; max-width: 155px; gap: 36px; }
+  }
+</style>
+</head>
+<body>
+
+<header class="site">
+  <a class="brand" href="index.html">
+    <span class="hanzi">大头会</span>
+    <span class="divider"></span>
+    <span class="latin">datou.fm</span>
+  </a>
+  <nav class="top">
+    <a href="book.html" class="is-current">读书</a>
+    <a href="mailto:hello@datou.fm">活动</a>
+    <a href="mailto:hello@datou.fm">联系</a>
+  </nav>
+</header>
+
+<main>
+  <section class="page-head">
+    <div>
+      <div class="kicker">on reading</div>
+      <h1>读书</h1>
+    </div>
+    <p class="lede">每期节目背后，都有几本一直陪着我们的书。这里是我们正在读、反复回去读、想推荐给你的那些。</p>
+  </section>
+
+  <section class="books" aria-label="书单">
+
+    <article class="book" data-screen-label="Book 01">
+      <a class="cover-link" href="#" aria-label="书 01">
+        <div class="cover">
+          <img src="assets/book-01.jpg" alt="书 01 封面" />
+        </div>
+      </a>
+      <div class="meta">
+        <div class="actions">
+          <a class="pill" href="https://weread.qq.com/web/reader/0363228059b4000363b29e9" target="_blank" rel="noopener noreferrer">微信读书</a>
+        </div>
+        <h2>重来</h2>
+        <div class="author">大头会推荐</div>
+        <p class="blurb">这是一本在AI时代，一人公司（OPC）的大背景下，可以重读的创业经典。</p>
+      </div>
+    </article>
+
+    <article class="book" data-screen-label="Book 02">
+      <a class="cover-link" href="#" aria-label="书 02">
+        <div class="cover">
+          <img src="assets/book-02.png" alt="书 02 封面" />
+        </div>
+      </a>
+      <div class="meta">
+        <div class="actions">
+          <a class="pill" href="#">购买纸质书</a>
+        </div>
+        <h2>众神的家园</h2>
+        <div class="author">嘉宾Arthur推荐</div>
+        <p class="blurb">一句话推荐语将放在这里——简短、克制，留住一本好书最打动我们的那个点。</p>
+      </div>
+    </article>
+
+    <article class="book" data-screen-label="Book 03">
+      <a class="cover-link" href="#" aria-label="书 03">
+        <div class="cover">
+          <img src="assets/book-03.png" alt="书 03 封面" />
+        </div>
+      </a>
+      <div class="meta">
+        <div class="actions">
+          <a class="pill" href="#">购买纸质书</a>
+        </div>
+        <h2>列王的国度</h2>
+        <div class="author">嘉宾Arthur推荐</div>
+        <p class="blurb">一句话推荐语将放在这里——简短、克制，留住一本好书最打动我们的那个点。</p>
+      </div>
+    </article>
+
+    <article class="book" data-screen-label="Book 04">
+      <a class="cover-link" href="#" aria-label="书 04">
+        <div class="cover">
+          <img src="assets/book-04.jpg" alt="书 04 封面" />
+        </div>
+      </a>
+      <div class="meta">
+        <div class="actions">
+          <a class="pill" href="https://weread.qq.com/web/bookDetail/afd32140811e3c576g01334e" target="_blank" rel="noopener noreferrer">微信读书</a>
+        </div>
+        <h2>自然与希腊人</h2>
+        <div class="author">嘉宾Arthur推荐</div>
+        <p class="blurb">一句话推荐语将放在这里——简短、克制，留住一本好书最打动我们的那个点。</p>
+      </div>
+    </article>
+
+  </section>
+</main>
+
+<footer class="site">
+  <div>© 2026 大头会 · datou.fm</div>
+  <div class="right">
+    <a href="mailto:hello@datou.fm">联系我们</a>
+    <a href="/">YouTube</a>
+    <a href="mailto:hello@datou.fm">Blog</a>
+  </div>
+</footer>
+
+</body>
+</html>
