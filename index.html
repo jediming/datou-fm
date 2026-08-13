@@ -807,6 +807,22 @@
   .view { display: none; }
   .view.view--active { display: block; }
   #view-events.view--active { display: flex; }
+  /* swipe pager: horizontal pans go to JS, vertical scroll + pinch stay native */
+  .view { touch-action: pan-y pinch-zoom; }
+  .view.view--peek {
+    display: block;
+    position: fixed;
+    left: 0; top: 0;
+    width: 100vw;
+    height: auto;               /* let each view keep its in-flow height (incl. #view-events min-height) so content lands exactly where the committed page renders it */
+    overflow: hidden;
+    z-index: 100;               /* above content, below tabbar (9998) and dock (9999) */
+    background: var(--bone);
+    will-change: transform;
+    pointer-events: none;
+  }
+  #view-events.view--peek { display: flex; }
+  .view--snap { transition: transform .26s cubic-bezier(.22, .61, .36, 1); }
   #view-events {
     max-width: 1180px;
     margin: 0 auto;
@@ -1410,30 +1426,127 @@
     window.addEventListener('hashchange', function () { showView(viewFromHash(), true); });
     showView(viewFromHash(), false);
 
-    /* swipe left/right between views (播客 ↔ 读书 ↔ 活动), stop at ends */
+    /* native-feel swipe pager between views (播客 ↔ 读书 ↔ 活动):
+       pages track the finger 1:1, neighbor slides in live, release commits
+       or springs back on distance + velocity, rubber-band at the ends */
     const viewOrder = ['podcast', 'read', 'events'];
-    const EDGE = 24;        /* leave OS back/forward edge gestures alone */
-    let swipeX = 0, swipeY = 0, swipeT = 0, swipeOn = false;
+    const EDGE = 24;          /* leave OS back/forward edge gestures alone */
+    const AXIS_LOCK = 10;     /* px of travel before the gesture picks an axis */
+    const SNAP_MS = 280;      /* keep ≥ the .view--snap transition duration */
+    const pg = { axis: null, active: false, animating: false, dir: 0, dx: 0, w: 0,
+                 from: null, to: null, fromKey: null, startHash: '',
+                 startX: 0, startY: 0, raf: 0, moves: [] };
+
+    function gestureEl(t) {   /* iOS Safari can target a Text node; Text has no .closest() */
+      const el = t && t.nodeType === 3 ? t.parentNode : t;
+      return el && el.closest ? el : null;
+    }
+    function setX(el, x) { el.style.transform = 'translateX(' + x + 'px)'; }
+    function paint() {
+      pg.raf = 0;
+      if (!pg.active) return;
+      if (pg.to) {
+        setX(pg.from, pg.dx);
+        setX(pg.to, pg.dir * pg.w + pg.dx);
+      } else {
+        /* no neighbor in this direction: rubber-band resistance */
+        setX(pg.from, Math.max(-70, Math.min(70, pg.dx * 0.3)));
+      }
+    }
+    function beginDrag(dx) {
+      pg.axis = 'h'; pg.active = true;
+      pg.dir = dx < 0 ? 1 : -1;
+      pg.w = window.innerWidth;
+      const cur = viewFromHash();
+      const i = viewOrder.indexOf(cur) + pg.dir;
+      pg.fromKey = cur;               /* origin captured at drag start, not at release */
+      pg.startHash = location.hash;
+      pg.from = views[cur];
+      pg.to = (i >= 0 && i < viewOrder.length) ? views[viewOrder[i]] : null;
+      if (pg.to) {
+        /* align the incoming page with where it will land after the switch */
+        const header = document.querySelector('header.site');
+        const hb = header ? header.getBoundingClientRect().bottom : 0;
+        if (hb > 0) pg.to.style.top = hb + 'px';
+        else pg.to.style.paddingTop = (header ? header.offsetHeight : 0) + 'px';
+        pg.to.classList.add('view--peek');
+        setX(pg.to, pg.dir * pg.w);
+      }
+    }
+    function cleanup() {
+      [pg.from, pg.to].forEach(function (el) {
+        if (!el) return;
+        el.classList.remove('view--peek', 'view--snap');
+        el.style.transform = ''; el.style.top = ''; el.style.paddingTop = '';
+      });
+      pg.axis = null; pg.active = false; pg.animating = false;
+      pg.from = null; pg.to = null;
+    }
+    function settle(commit) {
+      if (pg.animating) return;            /* no re-entry: stray touchends during the snap are inert */
+      pg.animating = true;
+      pg.active = false;
+      if (pg.raf) { cancelAnimationFrame(pg.raf); pg.raf = 0; }
+      const from = pg.from, to = pg.to, dir = pg.dir, w = pg.w, startHash = pg.startHash;
+      const i = viewOrder.indexOf(pg.fromKey) + dir;
+      const target = (commit && to && i >= 0 && i < viewOrder.length) ? viewOrder[i] : null;
+      [from, to].forEach(function (el) { if (el) el.classList.add('view--snap'); });
+      requestAnimationFrame(function () {
+        if (target) { setX(from, -dir * w); setX(to, 0); }
+        else { setX(from, 0); if (to) setX(to, dir * w); }
+      });
+      setTimeout(function () {
+        /* commit only if nothing else (tab tap, back button) navigated meanwhile */
+        if (target && location.hash === startHash) {
+          showView(target, true);          /* flip views before removing the peek: no flash */
+          cleanup();
+          location.hash = '#' + target;    /* history entry; hashchange re-run is idempotent */
+        } else {
+          cleanup();
+        }
+      }, SNAP_MS);
+    }
     document.addEventListener('touchstart', function (e) {
-      swipeOn = false;
-      if (e.touches.length !== 1) return;
+      if (pg.animating) return;
+      if (e.touches.length !== 1) { if (pg.active) settle(false); else pg.axis = null; return; }
+      if (pg.active) { settle(false); return; }
       const t = e.touches[0];
-      if (t.clientX < EDGE || t.clientX > window.innerWidth - EDGE) return;
-      /* iOS Safari can target a Text node; Text has no .closest() */
-      const el = e.target && e.target.nodeType === 3 ? e.target.parentNode : e.target;
-      if (el && el.closest && el.closest('.audio-dock, .tabbar, input, select, textarea')) return;
-      swipeOn = true; swipeX = t.clientX; swipeY = t.clientY; swipeT = Date.now();
+      if (t.clientX < EDGE || t.clientX > window.innerWidth - EDGE) { pg.axis = null; return; }
+      const el = gestureEl(e.target);
+      if (!el || el.closest('.audio-dock, .tabbar, input, select, textarea')) { pg.axis = null; return; }
+      pg.axis = 'pending'; pg.startX = t.clientX; pg.startY = t.clientY;
+      pg.dx = 0; pg.moves = [{ x: t.clientX, t: Date.now() }];
     }, { passive: true });
-    document.addEventListener('touchend', function (e) {
-      if (!swipeOn) return;
-      swipeOn = false;
-      const t = e.changedTouches[0];
-      const dx = t.clientX - swipeX, dy = t.clientY - swipeY;
-      if (Date.now() - swipeT > 800) return;                          /* flick, not a long-press drag */
-      if (Math.abs(dx) < 60 || Math.abs(dx) < 2 * Math.abs(dy)) return; /* clear horizontal intent */
-      const i = viewOrder.indexOf(viewFromHash()) + (dx < 0 ? 1 : -1);
-      if (i < 0 || i >= viewOrder.length) return;
-      location.hash = '#' + viewOrder[i];
+    document.addEventListener('touchmove', function (e) {
+      if (!pg.axis || pg.animating || e.touches.length !== 1) return;
+      const t = e.touches[0];
+      const dx = t.clientX - pg.startX, dy = t.clientY - pg.startY;
+      if (pg.axis === 'pending') {
+        if (Math.abs(dx) < AXIS_LOCK && Math.abs(dy) < AXIS_LOCK) return;
+        if (Math.abs(dx) > Math.abs(dy) * 1.2) beginDrag(dx);
+        else { pg.axis = 'v'; return; }   /* vertical scroll owns this gesture */
+      }
+      if (pg.axis !== 'h') return;
+      /* with a neighbor engaged, don't track past the origin in the other direction */
+      pg.dx = pg.to ? (pg.dir === 1 ? Math.min(0, dx) : Math.max(0, dx)) : dx;
+      pg.moves.push({ x: t.clientX, t: Date.now() });
+      if (pg.moves.length > 6) pg.moves.shift();
+      if (!pg.raf) pg.raf = requestAnimationFrame(paint);
+    }, { passive: true });
+    document.addEventListener('touchend', function () {
+      if (!pg.active) { pg.axis = null; return; }
+      const m = pg.moves;
+      let v = 0;
+      if (m.length >= 2) {
+        const a = m[0], b = m[m.length - 1];
+        v = (b.x - a.x) / ((b.t - a.t) || 1);   /* px per ms */
+        if (Date.now() - b.t > 120) v = 0;      /* finger paused before lifting: not a flick */
+      }
+      const flick = Math.abs(v) > 0.35 && ((v < 0) === (pg.dir === 1)) && Math.abs(pg.dx) > 30;
+      settle(!!(pg.to && (Math.abs(pg.dx) > pg.w * 0.33 || flick)));
+    }, { passive: true });
+    document.addEventListener('touchcancel', function () {
+      if (pg.active) settle(false); else pg.axis = null;
     }, { passive: true });
   })();
 </script>
