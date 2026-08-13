@@ -1409,6 +1409,32 @@
     }
     window.addEventListener('hashchange', function () { showView(viewFromHash(), true); });
     showView(viewFromHash(), false);
+
+    /* swipe left/right between views (播客 ↔ 读书 ↔ 活动), stop at ends */
+    const viewOrder = ['podcast', 'read', 'events'];
+    const EDGE = 24;        /* leave OS back/forward edge gestures alone */
+    let swipeX = 0, swipeY = 0, swipeT = 0, swipeOn = false;
+    document.addEventListener('touchstart', function (e) {
+      swipeOn = false;
+      if (e.touches.length !== 1) return;
+      const t = e.touches[0];
+      if (t.clientX < EDGE || t.clientX > window.innerWidth - EDGE) return;
+      /* iOS Safari can target a Text node; Text has no .closest() */
+      const el = e.target && e.target.nodeType === 3 ? e.target.parentNode : e.target;
+      if (el && el.closest && el.closest('.audio-dock, .tabbar, input, select, textarea')) return;
+      swipeOn = true; swipeX = t.clientX; swipeY = t.clientY; swipeT = Date.now();
+    }, { passive: true });
+    document.addEventListener('touchend', function (e) {
+      if (!swipeOn) return;
+      swipeOn = false;
+      const t = e.changedTouches[0];
+      const dx = t.clientX - swipeX, dy = t.clientY - swipeY;
+      if (Date.now() - swipeT > 800) return;                          /* flick, not a long-press drag */
+      if (Math.abs(dx) < 60 || Math.abs(dx) < 2 * Math.abs(dy)) return; /* clear horizontal intent */
+      const i = viewOrder.indexOf(viewFromHash()) + (dx < 0 ? 1 : -1);
+      if (i < 0 || i >= viewOrder.length) return;
+      location.hash = '#' + viewOrder[i];
+    }, { passive: true });
   })();
 </script>
 
