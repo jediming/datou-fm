@@ -1411,7 +1411,18 @@
       if (h === 'events') return 'events';
       return 'podcast';
     }
+    /* per-view scroll memory: each section keeps its own position (native tab behavior) */
+    const scrollPos = { podcast: 0, read: 0, events: 0 };
+    let currentView = viewFromHash();
+    function jumpTo(y) {
+      /* bypass the global scroll-behavior:smooth — view switches must not animate vertically */
+      const de = document.documentElement;
+      de.style.scrollBehavior = 'auto';
+      window.scrollTo(0, y);
+      de.style.scrollBehavior = '';
+    }
     function showView(v, doScroll) {
+      if (v !== currentView) scrollPos[currentView] = window.scrollY;
       Object.keys(views).forEach(function (k) {
         if (views[k]) views[k].classList.toggle('view--active', k === v);
       });
@@ -1421,10 +1432,18 @@
         if (on) a.setAttribute('aria-current', 'page'); else a.removeAttribute('aria-current');
       });
       document.title = titles[v] || titles.podcast;
-      if (doScroll) window.scrollTo(0, 0);
+      if (doScroll && v !== currentView) jumpTo(scrollPos[v] || 0);
+      currentView = v;
     }
     window.addEventListener('hashchange', function () { showView(viewFromHash(), true); });
     showView(viewFromHash(), false);
+    /* iOS convention: tapping the tab you are already on scrolls that section to the top */
+    document.querySelectorAll('a[data-view]').forEach(function (a) {
+      a.addEventListener('click', function () {
+        if (pg.animating || pg.active) return;  /* not during a swipe or its snap animation */
+        if (a.dataset.view === currentView) window.scrollTo({ top: 0, behavior: 'smooth' });
+      });
+    });
 
     /* native-feel swipe pager between views (播客 ↔ 读书 ↔ 活动):
        pages track the finger 1:1, neighbor slides in live, release commits
@@ -1465,11 +1484,23 @@
       pg.to = (i >= 0 && i < viewOrder.length) ? views[viewOrder[i]] : null;
       if (pg.to) {
         /* align the incoming page with where it will land after the switch */
+        const toKey = viewOrder[i];
+        const S = scrollPos[toKey] || 0;
         const header = document.querySelector('header.site');
         const hb = header ? header.getBoundingClientRect().bottom : 0;
-        if (hb > 0) pg.to.style.top = hb + 'px';
-        else pg.to.style.paddingTop = (header ? header.offsetHeight : 0) + 'px';
-        pg.to.classList.add('view--peek');
+        if (S > 0) {
+          /* returning to a scrolled view: preview it at its saved position
+             (headerDocBottom accounts for the header still partly visible when S is small) */
+          const headerDocBottom = hb + window.scrollY;
+          pg.to.style.top = Math.max(0, headerDocBottom - S) + 'px';
+          pg.to.style.height = '100vh';   /* fixed box so the peek can be inner-scrolled */
+          pg.to.classList.add('view--peek');
+          pg.to.scrollTop = Math.max(0, S - headerDocBottom);
+        } else {
+          if (hb > 0) pg.to.style.top = hb + 'px';
+          else pg.to.style.paddingTop = (header ? header.offsetHeight : 0) + 'px';
+          pg.to.classList.add('view--peek');
+        }
         setX(pg.to, pg.dir * pg.w);
       }
     }
@@ -1477,7 +1508,8 @@
       [pg.from, pg.to].forEach(function (el) {
         if (!el) return;
         el.classList.remove('view--peek', 'view--snap');
-        el.style.transform = ''; el.style.top = ''; el.style.paddingTop = '';
+        el.style.transform = ''; el.style.top = ''; el.style.paddingTop = ''; el.style.height = '';
+        el.scrollTop = 0;
       });
       pg.axis = null; pg.active = false; pg.animating = false;
       pg.from = null; pg.to = null;
@@ -1498,8 +1530,10 @@
       setTimeout(function () {
         /* commit only if nothing else (tab tap, back button) navigated meanwhile */
         if (target && location.hash === startHash) {
-          showView(target, true);          /* flip views before removing the peek: no flash */
-          cleanup();
+          showView(target, false);         /* flip views before removing the peek: no flash */
+          cleanup();                       /* peek off — target is in normal flow again */
+          jumpTo(scrollPos[target] || 0);  /* restore only after the peek is gone, or the
+                                              short fixed-position document clamps the scroll */
           location.hash = '#' + target;    /* history entry; hashchange re-run is idempotent */
         } else {
           cleanup();
