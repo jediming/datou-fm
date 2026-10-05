@@ -31,7 +31,7 @@
 <link rel="alternate" type="application/rss+xml" title="大头会 Podcast RSS" href="https://feeds.transistor.fm/bdbaec62-2fb8-4ace-b30a-913590c65b24" />
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;500;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500;1,600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
 <link rel="icon" href="/favicon.ico" sizes="32x32">
 <link rel="icon" href="/assets/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="/assets/apple-touch-icon.png">
@@ -139,6 +139,11 @@
     --ink: #002147;
     --rule: rgba(0, 33, 71, 0.15);
     --pill-edge: rgba(0, 33, 71, 0.35);
+    /* English body type: a screen serif with a larger x-height than the Chinese page's Latin fallback */
+    --en-body: 'Source Serif 4';
+    --en-size: 18px;
+    --en-weight: 400;
+    --en-lh: 1.6;
   }
   * { box-sizing: border-box; }
   html, body { margin: 0; padding: 0; }
@@ -285,9 +290,9 @@
     margin: 26px 0 0;
     padding-top: 18px;
     border-top: 1px solid var(--rule);
-    font-size: 13.5px;
+    font-size: 14px;
     line-height: 1.75;
-    color: rgba(0, 33, 71, 0.55);
+    color: rgba(0, 33, 71, 0.75);
     max-width: 56ch;
   }
 
@@ -326,31 +331,32 @@
 
   /* ── sections list (读书 / 活动 / 视频 / 音频) ─────── */
   .sections {
-    margin-top: 96px;
+    margin-top: 72px;
     border-top: 1px solid var(--rule);
   }
   .sections-head {
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
+    gap: 24px;
     align-items: baseline;
     padding-top: 24px;
   }
   .sections-head .title {
     margin: 0;
-    font-weight: inherit;
-    font-family: 'Cormorant Garamond', serif;
+    font-weight: 600;
+    font-family: 'Cormorant Garamond', 'Noto Serif SC', serif;
     font-style: italic;
-    font-size: 16px;
-    color: var(--brass);
+    font-size: 17px;
+    color: var(--oxford);
     letter-spacing: 0.32em;
     text-transform: uppercase;
   }
   .sections-head .meta {
     font-family: 'Cormorant Garamond', serif;
     font-style: italic;
-    font-size: 14px;
-    color: rgba(0, 33, 71, 0.55);
-    letter-spacing: 0.08em;
+    font-size: 15.5px;
+    color: rgba(0, 33, 71, 0.82);
+    letter-spacing: 0.04em;
   }
   .row {
     display: grid;
@@ -759,7 +765,9 @@
   @media (max-width: 480px) {
     .sections { margin-top: 56px; }
     .sections-head { padding-top: 18px; margin-bottom: 8px; }
+    .sections-head { flex-wrap: wrap; row-gap: 2px; }
     .sections-head .title { font-size: 22px; }
+    .sections-head .meta { flex-basis: 100%; font-size: 14.5px; }   /* phones: the note sits under the title */
     .episode { grid-template-columns: 84px minmax(0, 1fr); gap: 14px; padding: 20px 0; }
     .episode .thumb { width: 84px; height: 84px; }
     .episode .play { width: 40px; height: 40px; }
@@ -781,19 +789,31 @@
       overflow: visible;
     }
     .episode .toggle-desc {
-      display: inline-block;
-      margin-top: 8px;
-      padding: 4px 0;
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 4px;
+      padding: 8px 0;
       background: none;
       border: none;
-      color: var(--brass);
+      color: var(--oxford);
       font-family: 'Cormorant Garamond', serif;
       font-style: italic;
-      font-size: 14px;
-      letter-spacing: 0.08em;
+      font-size: 16px;
+      letter-spacing: 0.04em;
       cursor: pointer;
       -webkit-tap-highlight-color: transparent;
     }
+    .episode .toggle-desc .zh { font-family: 'Noto Serif SC', serif; font-style: normal; font-size: 14px; letter-spacing: 0.1em; }
+    .episode .toggle-desc::after {
+      content: "";
+      width: 7px; height: 7px;
+      border-right: 1.5px solid var(--brass);
+      border-bottom: 1.5px solid var(--brass);
+      transform: translateY(-2px) rotate(45deg);
+      transition: transform .2s ease;
+    }
+    .episode .toggle-desc[aria-expanded="true"]::after { transform: translateY(2px) rotate(225deg); }
   }
   .row .num {
     font-family: 'Cormorant Garamond', serif;
@@ -964,7 +984,7 @@
 
   /* ── read view (读书) ──────────────────────── */
   #view-read .page-head { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 64px; align-items: end; padding-bottom: 36px; border-bottom: 1px solid var(--rule); }
-  #view-read .page-head .kicker { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 16px; color: var(--brass); letter-spacing: 0.32em; text-transform: uppercase; margin-bottom: 16px; }
+  #view-read .page-head .kicker { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: 16px; color: rgba(0, 33, 71, 0.75); letter-spacing: 0.32em; text-transform: uppercase; margin-bottom: 16px; }
   #view-read .page-head h1 { font-family: 'Noto Serif SC', serif; font-weight: 600; font-size: clamp(32px, 4.4vw, 52px); line-height: 1.25; letter-spacing: 0.04em; margin: 0; color: var(--oxford); }
   #view-read .page-head .lede { font-size: clamp(15px, 1.2vw, 16px); line-height: 1.75; color: rgba(0, 33, 71, 0.78); max-width: 46ch; margin: 0; text-wrap: pretty; }
   #view-read .books { margin: 56px auto 0; max-width: 840px; display: grid; grid-template-columns: repeat(4, 135px); gap: 64px 100px; justify-content: center; }
@@ -995,7 +1015,7 @@
   #view-events .invite::after { content: ""; position: absolute; inset: 18px; border: 1px solid rgba(232, 217, 184, 0.28); pointer-events: none; }
   #view-events .invite .mark { width: 64px; height: 38px; margin: 0 auto 26px; }
   #view-events .invite .mark svg { width: 100%; height: 100%; display: block; }
-  #view-events .invite .kicker { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: clamp(13px, 1.6vw, 16px); letter-spacing: 0.34em; text-transform: uppercase; color: rgba(232, 217, 184, 0.62); margin: 0 0 28px; }
+  #view-events .invite .kicker { font-family: 'Cormorant Garamond', serif; font-style: italic; font-size: clamp(13px, 1.6vw, 16px); letter-spacing: 0.34em; text-transform: uppercase; color: rgba(232, 217, 184, 0.85); margin: 0 0 28px; }
   #view-events .invite .year { font-family: 'Cormorant Garamond', serif; font-style: italic; font-weight: 500; font-size: clamp(54px, 12vw, 116px); line-height: 0.92; letter-spacing: 0.01em; color: var(--cream); margin: 0; }
   #view-events .invite .title { margin: 24px 0 0; color: var(--cream); }
   #view-events .invite .title-sub { display: block; font-family: 'Noto Serif SC', serif; font-weight: 500; font-size: clamp(17px, 2.8vw, 24px); letter-spacing: 0.3em; text-indent: 0.3em; color: rgba(232, 217, 184, 0.72); margin-bottom: 14px; }
@@ -1024,7 +1044,7 @@
     display: inline-block;
     position: relative;
     text-decoration: none;
-    color: rgba(0, 33, 71, 0.5);
+    color: rgba(0, 33, 71, 0.85);
     padding: 2px 0;
     border-bottom: 1px solid transparent;
     touch-action: manipulation;
@@ -1089,10 +1109,42 @@
     .lang-hint__close { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); }
   }
 
+  /* collapsed introduction: who we are + what the show is stay visible, the rest unfolds */
+  .intro-more[hidden], .intro-more-text[hidden] { display: none; }
+  .toggle-intro {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    margin: 2px 0 6px;
+    padding: 10px 0;                /* 44px tap target */
+    background: none;
+    border: 0;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 19px;
+    letter-spacing: 0.04em;
+    color: var(--oxford);
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .toggle-intro .zh { font-family: 'Noto Serif SC', serif; font-style: normal; font-size: 16px; letter-spacing: 0.1em; }
+  .toggle-intro::after {            /* chevron: points down when collapsed, up when expanded */
+    content: "";
+    width: 8px; height: 8px;
+    border-right: 1.5px solid var(--brass);
+    border-bottom: 1.5px solid var(--brass);
+    transform: translateY(-3px) rotate(45deg);
+    transition: transform .2s ease;
+  }
+  .toggle-intro[aria-expanded="true"]::after { transform: translateY(2px) rotate(225deg); }
+  @media (hover: hover) { .toggle-intro:hover { color: var(--brass); } }
+  .toggle-intro:focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; border-radius: 4px; }
+
   /* ── English typesetting: Latin faces, no CJK tracking, ragged right ── */
   /* Latin faces first; CJK glyphs inside English text (大头会) fall through to the brand hanzi face,
      not to the device default (PingFang on iPhone, Songti on Mac) */
-  html[lang="en"] body { font-family: 'EB Garamond', 'Cormorant Garamond', Garamond, 'Noto Serif SC', 'Songti SC', 'STSong', serif; }
+  html[lang="en"] body { font-family: var(--en-body), 'Noto Serif SC', 'Songti SC', 'STSong', serif; font-weight: var(--en-weight); }
   html[lang="en"] nav.top a { font-family: 'Cormorant Garamond', 'Noto Serif SC', serif; font-size: 17px; letter-spacing: 0.03em; }
   @media (max-width: 880px) {
     html[lang="en"] nav.top a { font-size: 15px; }
@@ -1107,43 +1159,42 @@
     text-wrap: balance;
   }
   html[lang="en"] .hero-text h1 .lead { font-size: clamp(24px, 3.2vw, 36px); font-weight: 500; letter-spacing: 0.01em; margin-bottom: 8px; }
-  html[lang="en"] .hero-text p { font-size: clamp(16px, 1.3vw, 18px); line-height: 1.6; max-width: 60ch; }
-  html[lang="en"] .hero-text .pull { font-family: 'EB Garamond', 'Noto Serif SC', serif; font-style: italic; font-weight: 400; font-size: clamp(19px, 1.75vw, 22px); line-height: 1.5; }
-  html[lang="en"] .signoff { font-family: 'EB Garamond', 'Noto Serif SC', serif; font-style: italic; font-size: 17px; letter-spacing: 0.01em; }
-  html[lang="en"] .about-line { font-family: 'Cormorant Garamond', 'Noto Serif SC', serif; font-style: italic; font-size: 15px; letter-spacing: 0.02em; }
-  html[lang="en"] .sections-head .meta { text-transform: none; letter-spacing: 0.06em; }
+  html[lang="en"] .hero-text p { font-size: var(--en-size); line-height: var(--en-lh); max-width: 58ch; }
+  html[lang="en"] .hero-text .pull { font-family: var(--en-body), 'Noto Serif SC', serif; font-style: italic; font-weight: var(--en-weight); font-size: calc(var(--en-size) + 3px); line-height: 1.5; }
+  html[lang="en"] .hero-text .signoff { font-family: var(--en-body), 'Noto Serif SC', serif; font-style: italic; font-size: calc(var(--en-size) - 1px); letter-spacing: 0.01em; }
+  html[lang="en"] .hero-text .about-line { font-family: 'Cormorant Garamond', 'Noto Serif SC', serif; font-style: italic; font-size: 16px; letter-spacing: 0.02em; }
+  html[lang="en"] .sections-head .meta { text-transform: none; letter-spacing: 0.03em; }
   html[lang="en"] .episode .body h3 { font-family: 'Cormorant Garamond', 'Noto Serif SC', serif; font-size: clamp(22px, 2.1vw, 27px); line-height: 1.2; letter-spacing: 0; margin-bottom: 8px; }
   html[lang="en"] .episode .body h3 .t-num { font-style: italic; font-weight: 500; color: var(--brass); margin-right: 0.2em; }
   html[lang="en"] .episode .body h3 .t-guest { display: block; font-style: italic; font-weight: 500; font-size: 0.72em; color: var(--brass); margin-top: 5px; letter-spacing: 0.01em; }
   .orig-title { font-family: 'Noto Serif SC', serif; font-size: 13px; line-height: 1.5; letter-spacing: 0.02em; color: rgba(0, 33, 71, 0.5); margin: 0 0 10px; }
   html[lang="en"] .episode .meta-line { letter-spacing: 0.18em; }
-  html[lang="en"] .episode .desc { font-size: 16.5px; line-height: 1.6; max-width: 70ch; text-align: left; text-justify: auto; }
-  html[lang="en"] .episode .toggle-desc { font-size: 15px; }
+  html[lang="en"] .episode .desc { font-size: calc(var(--en-size) - 1px); line-height: 1.6; max-width: 68ch; text-align: left; text-justify: auto; }
   html[lang="en"] .tabbar .tab { font-family: 'Cormorant Garamond', 'Noto Serif SC', serif; font-weight: 600; font-size: 14px; letter-spacing: 0.04em; }
   html[lang="en"] #view-read .page-head h1 { font-family: 'Cormorant Garamond', 'Noto Serif SC', serif; letter-spacing: 0; }
-  html[lang="en"] #view-read .page-head .lede { font-size: 17px; line-height: 1.6; }
+  html[lang="en"] #view-read .page-head .lede { font-size: calc(var(--en-size) - 1px); line-height: 1.6; }
   html[lang="en"] #view-read .book h2 { font-family: 'Cormorant Garamond', 'Noto Serif SC', serif; font-size: 19px; font-weight: 600; letter-spacing: 0; line-height: 1.2; }
-  html[lang="en"] #view-read .book .pill { font-family: 'EB Garamond', 'Noto Serif SC', serif; font-size: 13px; letter-spacing: 0.02em; max-width: 100%; white-space: normal; text-align: center; line-height: 1.3; }
-  html[lang="en"] #view-read .book .blurb { font-size: 13.5px; line-height: 1.5; }
+  html[lang="en"] #view-read .book .pill { font-family: var(--en-body), 'Noto Serif SC', serif; font-size: 13px; letter-spacing: 0.02em; max-width: 100%; white-space: normal; text-align: center; line-height: 1.3; }
+  html[lang="en"] #view-read .book .blurb { font-size: 14px; line-height: 1.5; }
   html[lang="en"] #view-events .invite .title-sub { font-family: 'Cormorant Garamond', 'Noto Serif SC', serif; font-style: italic; font-weight: 500; font-size: clamp(17px, 2.8vw, 24px); letter-spacing: 0.12em; text-indent: 0.12em; }
   html[lang="en"] #view-events .invite .title-main { font-family: 'Cormorant Garamond', 'Noto Serif SC', serif; font-size: clamp(28px, 5.4vw, 50px); letter-spacing: 0.06em; text-indent: 0.06em; }
   html[lang="en"] #view-events .invite .await { font-family: 'Cormorant Garamond', 'Noto Serif SC', serif; font-style: italic; letter-spacing: 0.22em; text-indent: 0.22em; }
   html[lang="en"] footer.site { font-size: 15px; }
-  html[lang="en"] .audio-dock__title { font-family: 'EB Garamond', 'Noto Serif SC', serif; font-size: 14px; letter-spacing: 0.01em; }
+  html[lang="en"] .audio-dock__title { font-family: var(--en-body), 'Noto Serif SC', serif; font-size: 14px; letter-spacing: 0.01em; }
   @media (max-width: 480px) {
     html[lang="en"] .hero-text h1 { font-size: 32px; line-height: 1.12; margin-bottom: 22px; }
     html[lang="en"] .hero-text h1 .lead { font-size: 23px; }
-    html[lang="en"] .hero-text p { font-size: 16px; line-height: 1.6; }
-    html[lang="en"] .hero-text .pull { font-size: 18px; }
+    html[lang="en"] { --en-size: 17px; }
+    html[lang="en"] .hero-text .pull { font-size: calc(var(--en-size) + 2px); }
     html[lang="en"] .episode .body h3 { font-size: 19px; line-height: 1.2; }
-    html[lang="en"] .episode .desc { font-size: 15px; line-height: 1.55; -webkit-line-clamp: 6; }
+    html[lang="en"] .episode .desc { font-size: calc(var(--en-size) - 1px); line-height: 1.55; -webkit-line-clamp: 6; }
     html[lang="en"] .episode .desc.is-expanded { -webkit-line-clamp: unset; }
     .orig-title { font-size: 12px; margin-bottom: 8px; }
   }
   .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0 0 0 0); clip-path: inset(50%); white-space: nowrap; border: 0; }
   @media (prefers-reduced-motion: reduce) {
     html { scroll-behavior: auto; }
-    .audio-dock, .view--snap, .episode .thumb img, #view-read .book .cover { transition: none; }
+    .audio-dock, .view--snap, .episode .thumb img, #view-read .book .cover, .toggle-intro::after, .episode .toggle-desc::after { transition: none; }
     .episode:hover .thumb img { transform: none; }
   }
 </style>
@@ -1186,8 +1237,9 @@
       <p class="en" lang="en"><span data-nosnippet>We are three Oxford MBA classmates who have been friends for twenty years. A decade ago, when all three of us were living in Shanghai, we began the kind of conversation we are still having today. We talked over breakfast. We talked late into the night. We talked technology. We talked business. We talked about the future. The conversations would go on and on until those “big brain” moments arrived, leaving all three of us entertained, educated, and enlightened. That is why we have called ourselves <span lang="zh-CN">大头</span> (dàtóu) ever since: “big brains” in meaning, “big heads” in literal translation. (And yes, we are fans of Nelson “Big Head” Bighetti of HBO’s Silicon Valley.)</span></p>
 
       <p class="zh">播客<strong>《大头会》</strong>，就是我们聊了十多年的那场对话——现在打开了麦克风。</p>
-      <p class="en" lang="en"><span data-nosnippet>Our podcast, <strong>datou.fm (<span lang="zh-CN">大头会</span>)</strong>, is a continuation of that very same dialogue and spirit, a decade on. The only difference is that the microphones are now switched on, and the three of us are broadcasting from three different cities.</span></p>
+      <p class="en" lang="en"><span data-nosnippet>Our podcast, <strong>datou.fm (<span lang="zh-CN">大头会</span>)</strong>, is a continuation of that very same dialogue and spirit, a decade on.<span class="intro-more-text" id="introMoreText" hidden> The only difference is that the microphones are now switched on, and the three of us are broadcasting from three different cities.</span></span></p>
 
+      <div class="intro-more" id="introMore" hidden>
       <p class="zh">每期节目都是一场长谈式圆桌对话：三位主播，三座城市，围绕一家公司、一位人物，或一个关乎未来的关键问题展开。我们以牛津校友情谊为起点，聊 AI 时代的人与公司，以及他们正在经历和推动的变化。</p>
       <p class="en" lang="en"><span data-nosnippet>Each episode is a long-form roundtable on one company, one person, or one issue in and around AI, from OpenAI and Tesla to SpaceX and AlphaFold. Rooted in the fellowship of our Oxford alumni network, we discuss the people and companies of the Age of Intelligence, exploring both the changes they are navigating and the future they are shaping.</span></p>
 
@@ -1201,6 +1253,8 @@
 
       <p class="signoff zh">——这是我们的热忱所在，也是我们想在这个时代认真留下的一点印记。</p>
       <p class="signoff en" lang="en"><span data-nosnippet>This is where our passion lies, and it is the small mark we hope to leave behind.</span></p>
+      </div>
+      <button type="button" class="toggle-intro" aria-expanded="false" aria-controls="introMore introMoreText"><span class="zh">展开全文</span><span class="en" lang="en" data-nosnippet>Read more</span></button>
 
       <p class="about-line zh">《大头会》（datou.fm）是一档由三位牛津大学 MBA 同班同学主持的中文播客，聚焦 AI 时代的商业、投资与中国。</p>
       <p class="about-line en" lang="en"><span data-nosnippet>Datou FM — an Oxford MBA Chinese podcast about AI, business, and China, hosted by three classmates in three cities.</span></p>
@@ -1220,7 +1274,7 @@
   <section class="sections" id="episodes">
     <div class="sections-head">
       <h2 class="title"><span class="zh">单集内容</span><span class="en" lang="en" data-nosnippet>Episodes</span></h2>
-      <div class="meta en" lang="en" data-nosnippet>recorded in Mandarin</div>
+      <div class="meta en" lang="en" data-nosnippet>All episodes are recorded in Mandarin</div>
     </div>
 
     <article class="episode is-live" data-audio="https://media.transistor.fm/d7f981ea/e51813be.mp3" data-title="大头会 007 · 刘煜冬" data-title-en="Datou FM 007 · Yudong Liu">
@@ -1775,6 +1829,20 @@
         btn.setAttribute('aria-expanded', expanded ? 'true' : 'false');
       });
     });
+
+    // expand / collapse the homepage introduction (all screen sizes, one state for both languages)
+    const introBtn = document.querySelector('.toggle-intro');
+    const introMore = document.getElementById('introMore');
+    if (introBtn && introMore) {
+      introBtn.addEventListener('click', function () {
+        const open = introMore.hidden;
+        introMore.hidden = !open;
+        document.querySelectorAll('.intro-more-text').forEach(function (el) { el.hidden = !open; });
+        introBtn.innerHTML = DATOU.pair(open ? 'collapse' : 'expand');
+        introBtn.setAttribute('aria-expanded', open ? 'true' : 'false');
+        if (!open) introBtn.scrollIntoView({ block: 'nearest' });
+      });
+    }
 
     // language switch: re-label everything the player writes itself
     document.addEventListener('datou:langchange', function () {
