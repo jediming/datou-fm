@@ -23,14 +23,14 @@ DST = os.path.join(ROOT, 'en', 'index.html')
 # English search / share metadata. The page <title> itself is NOT here: it is read
 # from the JS title table in index.html so it exists exactly once.
 EN = {
-    'description': ('Datou FM (大头会) is a Mandarin-language podcast by three Oxford MBA classmates in three cities: '
-                    'long conversations about AI, business, investing, and China. Episode notes in English.'),
-    'og_description': ('A Mandarin podcast by three Oxford MBA classmates in three cities: long conversations about AI, '
-                       'business, investing, and China. Episode notes in English.'),
+    'description': 'Datou FM (大头会) is a Mandarin-language podcast: three friends, three cities, one long conversation about the companies and people of the AI era. Episode notes in English.',
+    'og_description': 'Datou FM (大头会) is a Mandarin-language podcast: three friends, three cities, one long conversation about the companies and people of the AI era. Episode notes in English.',
+    'og_image_alt': 'Datou FM (大头会)',
     'site_name': 'Datou FM 大头会',
     'rss_title': 'Datou FM Podcast RSS',
-    'series_description': ('Datou FM (大头会) is a Mandarin-language podcast hosted by three Oxford MBA classmates in three cities, '
-                           'about AI, business, investing, and China. 《大头会》是一档由三位牛津大学MBA同班同学主持的中文播客。'),
+    # the two one-line definitions, Mandarin first — identical on both pages
+    'series_description': ('《大头会》（datou.fm）是一档中文圆桌播客，由三位相识二十年的朋友主持，聊 AI 时代的公司与人。 '
+                           'Datou FM (大头会) is a Mandarin-language roundtable podcast about the companies and people of the AI era, hosted by three friends in three cities.'),
 }
 # static landmark labels: Chinese in index.html, swapped here from the DATOU string table
 # (the JS re-labels them at runtime from the same table)
@@ -117,6 +117,8 @@ def build(src):
               '<meta property="og:title" content="%s" />' % html.escape(en_title), doc)
     doc = one(r'<meta property="og:description" content="[^"]*" />',
               '<meta property="og:description" content="%s" />' % html.escape(EN['og_description']), doc)
+    doc = one(r'<meta property="og:image:alt" content="[^"]*" />',
+              '<meta property="og:image:alt" content="%s" />' % html.escape(EN['og_image_alt']), doc)
     doc = one(r'<meta property="og:url" content="https://datou.fm/" />',
               '<meta property="og:url" content="https://datou.fm/en/" />', doc)
     doc = one(r'<meta property="og:locale" content="zh_CN" />\n<meta property="og:locale:alternate" content="en_US" />',
