@@ -3,6 +3,11 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<script>
+  /* landing on /: a reader who chose English before gets it before first paint.
+     /en/ and / stay explicit; nothing is detected from the browser here. */
+  (function () { try { if (!/^\/en(\/|$)/.test(location.pathname) && localStorage.getItem('datou-lang') === 'en') document.documentElement.lang = 'en'; } catch (e) {} })();
+</script>
 <title>大头会 Datou FM｜牛津MBA中文播客：AI、商业与中国 — Oxford MBA Chinese Podcast on AI &amp; Business</title>
 <meta name="description" content="《大头会》（datou.fm）是三位牛津大学MBA同班同学主持的中文播客，聊AI、商业、投资与中国。Datou FM is a Chinese podcast about AI and business, hosted by three Oxford MBA classmates." />
 <link rel="canonical" href="https://datou.fm/" />
@@ -1045,6 +1050,45 @@
     nav.lang a[lang="en"] { font-size: 16px; }
   }
 
+  /* first-visit hint under the header: shown on / only to browsers that list no Chinese */
+  .lang-hint {
+    max-width: 1180px;
+    margin: 6px auto 0;
+    padding: 8px 48px 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 12px;
+    font-family: 'Cormorant Garamond', 'Noto Serif SC', serif;
+    font-style: italic;
+    font-size: 16px;
+    letter-spacing: 0.03em;
+    color: rgba(0, 33, 71, 0.7);
+  }
+  .lang-hint[hidden], html[lang="en"] .lang-hint { display: none; }
+  .lang-hint a { color: var(--oxford); white-space: nowrap; }
+  .lang-hint a:hover { color: var(--brass); }
+  .lang-hint__close {
+    position: relative;
+    border: 0; background: none; padding: 0 4px;
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 22px; line-height: 1;
+    color: rgba(0, 33, 71, 0.45);
+    cursor: pointer;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .lang-hint__close::before { content: ""; position: absolute; top: 50%; left: 50%; width: 44px; height: 44px; transform: translate(-50%, -50%); }
+  .lang-hint__close:hover { color: var(--brass); }
+  .lang-hint__close:focus-visible, .lang-hint a:focus-visible { outline: 2px solid var(--brass); outline-offset: 3px; border-radius: 4px; }
+  @media (max-width: 880px) { .lang-hint { padding: 8px 24px 0; } }
+  @media (max-width: 480px) {
+    /* phones: one centred sentence that wraps as prose, × pinned at the right */
+    .lang-hint { display: block; position: relative; padding: 6px 44px 0 18px; font-size: 15px; line-height: 1.5; text-align: center; }
+    .lang-hint span { margin-right: 0.5em; }
+    .lang-hint__close { position: absolute; right: 14px; top: 50%; transform: translateY(-50%); }
+  }
+
   /* ── English typesetting: Latin faces, no CJK tracking, ragged right ── */
   /* Latin faces first; CJK glyphs inside English text (大头会) fall through to the brand hanzi face,
      not to the device default (PingFang on iPhone, Songti on Mac) */
@@ -1125,6 +1169,12 @@
     </nav>
   </div>
 </header>
+
+<div class="lang-hint" id="langHint" lang="en" hidden>
+  <span>This page is also available in English.</span>
+  <a href="/en/" hreflang="en" data-lang="en">Read in English →</a>
+  <button type="button" class="lang-hint__close" aria-label="Dismiss">×</button>
+</div>
 
 <main id="view-podcast" class="view">
   <section class="hero">
@@ -1968,6 +2018,13 @@
        is the only memory — nothing is auto-detected or remembered. */
     function langFromPath() { return /^\/en(\/|$)/.test(location.pathname) ? 'en' : 'zh'; }
     let urlLang = langFromPath();          /* the language the address bar last agreed to */
+    /* a manual choice is remembered on this device and applied on later landings on / */
+    const PREF_KEY = 'datou-lang', HINT_KEY = 'datou-lang-hint';
+    function readPref() { try { return localStorage.getItem(PREF_KEY); } catch (e) { return null; } }
+    function remember(lang) { try { localStorage.setItem(PREF_KEY, lang); } catch (e) {} }
+    if (DATOU.lang() !== langFromPath()) {   /* the head script applied a remembered 'en' on / */
+      try { history.replaceState(null, '', langUrl(DATOU.lang())); urlLang = DATOU.lang(); } catch (e) {}
+    }
     function langUrl(lang) { return (lang === 'en' ? '/en/' : '/') + location.search + location.hash; }
     function syncLangLinks() {
       /* hrefs follow the current view so open-in-new-tab / copy-link land where the reader is */
@@ -2017,6 +2074,7 @@
       a.addEventListener('click', function (e) {
         if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey || e.button !== 0) return;  /* open-in-new-tab etc. stay native */
         e.preventDefault();
+        remember(a.dataset.lang);
         if (pg.active || pg.animating) {   /* mid-swipe: apply once the snap has settled */
           setTimeout(function () { if (!pg.active && !pg.animating) setLang(a.dataset.lang, true); }, SNAP_MS + 20);
           return;
@@ -2031,6 +2089,24 @@
       setLang(l, false);
     });
     syncLangLinks();
+
+    /* first visit: Mandarin stays, but a reader whose browser lists no Chinese at all
+       gets a door to English. Dismissing it, or choosing a language, is remembered. */
+    const hint = document.getElementById('langHint');
+    function hintWanted() {
+      if (DATOU.lang() !== 'zh' || readPref()) return false;
+      try { if (localStorage.getItem(HINT_KEY)) return false; } catch (e) {}
+      const langs = (navigator.languages && navigator.languages.length) ? navigator.languages : [navigator.language || ''];
+      return !langs.some(function (l) { return /^(zh|yue|cmn)\b/i.test(l); });
+    }
+    if (hint) {
+      if (hintWanted()) hint.hidden = false;
+      hint.querySelector('.lang-hint__close').addEventListener('click', function () {
+        hint.hidden = true;
+        try { localStorage.setItem(HINT_KEY, '1'); } catch (e) {}
+      });
+      document.addEventListener('datou:langchange', function () { hint.hidden = true; });
+    }
   })();
 </script>
 
